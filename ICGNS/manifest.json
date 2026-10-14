@@ -1,0 +1,9 @@
+{
+  "Name": "I Can't Get No Sleep",
+  "Author": "Tom",
+  "Version": "1.1.2",
+  "Description": "Stay awake until 6AM. A new day begins and saves automatically. Shipping items are sold only when you sleep or pass out.",
+  "UniqueID": "Tom.ICGNS",
+  "EntryDll": "ICGNS.dll",
+  "MinimumApiVersion": "4.5.2"
+}

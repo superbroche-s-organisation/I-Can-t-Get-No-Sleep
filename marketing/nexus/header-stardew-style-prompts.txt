@@ -1,0 +1,26 @@
+Tool: built-in imagegen, edit mode.
+Official style reference: https://www.stardewvalley.net/wp-content/uploads/2016/02/StardewValley_4_1-1024x576.png
+Reference page: https://www.stardewvalley.net/media/
+
+STYLE TRANSFER PROMPT
+
+Use case: style-transfer.
+Asset type: Nexus Mods header, final 1300 x 372 pixels.
+Input image 1 is the EDIT TARGET: the existing "I can't get no sleep" banner. Input image 2 is a SUPPORTING STYLE REFERENCE: an official Stardew Valley gameplay screenshot. Use image 2 only as the authoritative guide to ConcernedApe's actual Stardew Valley art direction, sprite construction, palette, contours, native pixel scale and tile details; do not replace the banner layout with the screenshot.
+Primary request: repaint image 1 into the authentic visual language of Stardew Valley, closely matching the actual game's pixel art instead of a detailed painterly pixel-art illustration. The user wants exactly the same banner composition and content, with its style corrected.
+Strict invariants: retain the panoramic crop and relative placement and size of every main element: wooden farmhouse on the left; open wooden shipping bin and produce at lower left; fences and warm lanterns; crescent moon in the upper left-center; large two-line title in the center; layered blue mountains and a tiny village/lake behind it; deep blue starry night blending into peach/purple dawn on the right; awake farmer with straw hat, white shirt, blue trousers and watering can at lower right; crop rows and sunflowers. Keep the same exact title wording: first line "I can't get", second line "no sleep". No extra words or logo.
+Style corrections: use a consistent low-resolution sprite grid, as if drawn at approximately 325 x 93 logical pixels and enlarged 4x with nearest-neighbor scaling. Sharp square pixels, flat bounded shapes, dark colored outlines, very limited color ramps per object. Use the Stardew Valley farm sprites' actual top-down three-quarter/orthographic construction and simple tile proportions for the house, chest/bin, fences, paths, trees and crop plants. The farmer must have the game's compact 16x32-type sprite proportions, simple blocky limbs and authentic face/hat/clothing pixels, not an illustrated human anatomy. Leaves and grass use the game's clear reusable pixel clusters, saturated greens, sparse single-pixel ground flowers and readable tile boundaries, following reference 2. Wooden walls and fences use vanilla-style warm orange-brown planks with small simple pixel highlights. Redraw the background with the simple, flat layered blue/purple mountain shapes and star pixels of Stardew Valley's title-screen art, preserving the existing panorama.
+Typography: preserve the very large centered two-line title and its readability, but redraw the golden lettering with the actual game's clean coarse pixel typography and warm golden wooden title aesthetic, discrete highlight bands and dark brown/purple pixel outlines. Keep the apostrophe and spelling exact.
+Reject the current image's painterly microtextures, excessive glitter, smooth gradients, realistic lighting, glossy bevels, soft antialiasing, elaborate volumetric tree rendering, pseudo-3D perspective and overshaded clothing. This must look like Stardew Valley's own sprite art, not a generic high-definition farming-game illustration.
+Canvas/export: preserve the target image's exact extremely wide 1300:372 aspect ratio and composition; output exactly 1300 x 372 if supported. All essential lettering stays fully visible. Opaque full-bleed PNG, no borders or mockup framing.
+
+FRAMING ADJUSTMENT PROMPT
+
+Use case: precise-object-edit.
+Image 1 is the edit target, the completed Stardew Valley style banner.
+Make just one framing correction to this existing artwork, keeping the art style and all other details unchanged:
+The final Nexus header will show the horizontal strip between source y=36 and y=657, then scale it to 1300 x 372. Therefore, move the complete farmer sprite, watering can and falling water on the right UP by about 70 source pixels, together with a small patch of the crop row directly underneath him, so his entire working pose and boots fit inside that strip. Keep the farmer at the same horizontal position and the exact same sprite size, outfit, hat, pose and vanilla Stardew Valley-like crisp pixel construction. Also move the open shipping bin at lower left UP by about 40 source pixels so its lid, produce, front and latch all fit inside the same strip. Blend the disturbed ground behind them using the same existing grass/dirt/crop pixel tiles. Do not duplicate either object.
+Everything else must remain identical: the title's exact spelling, size, two-line layout and position; house, trees, moon, stars, lanterns, wooden fences, mountains, tiny village, lake, dawn clouds, sunflower rows, palette and coarse pixel edges.
+Keep the source canvas dimensions and aspect ratio unchanged. No new captions, no border, no camera zoom, no overall restyling. This is a tiny object-placement adjustment, not a redesign.
+
+Final export: opaque PNG, 1300 x 372 px, crop starting at source y=42, nearest-neighbor downscaling to preserve hard pixel edges.

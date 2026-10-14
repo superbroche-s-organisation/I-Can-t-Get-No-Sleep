@@ -1,0 +1,11 @@
+Use case: ads-marketing.
+Asset type: Nexus Mods page header for a Stardew Valley mod.
+Create one polished, original pixel-art banner for a mod whose exact name is "I can't get no sleep". The mod lets a farmer work through the night, transitions to the next day at 6 AM, and retains shipping-bin items after an all-nighter.
+Canvas: exactly 1300 x 372 pixels, very wide horizontal aspect ratio 3.4946:1. Full-bleed artwork with no external white margins. If working at a larger resolution, preserve that exact aspect ratio and export the finished banner at 1300 x 372.
+Scene: a cozy countryside farm in a classic 16-bit farming-game aesthetic, with clean pixel clusters and charming hand-drawn pixel art. Across the panorama, a deep indigo starry night with a crescent moon gently transitions into a warm peach and lavender dawn near the right horizon. A small wooden farmhouse and a recognizable wooden shipping bin with retained produce sit on the left; a small awake straw-hatted farmer tends lush crops on the right. Layered mountains, trees and rows of crops add depth. Keep the busy environmental details mostly to the outer thirds and bottom edge.
+Typography: the only text is the exact mod name, rendered prominently across the central dark sky in very readable, bold pixel lettering, warm pale cream with a rich dark outline and a subtle gold accent. It can be arranged as "I can't get" on the first line and "no sleep" on the second line. Preserve the exact spelling and apostrophe. The title should occupy the central 55% of the banner and remain easily readable at the final size. Keep all letters and important subjects at least 45 px from the canvas edges.
+Mood: inviting, energetic, cozy late-night farming and a hopeful dawn. Rich navy, teal foliage and warm golden window lights.
+Constraints: no additional captions, no logos, no watermarks, no gameplay HUD, no screenshot framing, no photorealism, no blurry gradients or blurry type, no sleeping or collapsed farmer. This is a finished upload-ready banner, not a mockup.
+
+Generation: built-in imagegen tool.
+Final export: PNG, 1300 x 372 px. The generated artwork is cropped to the requested banner aspect ratio and downscaled for export.
