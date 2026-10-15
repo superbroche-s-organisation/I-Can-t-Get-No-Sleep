@@ -2,7 +2,7 @@
 
 Changes are listed from newest to oldest. Earlier versions were private development builds.
 
-## 1.1.2 — 2026-10-15
+## 1.0.0 — 2026-10-15
 
 ### Changed
 
@@ -16,7 +16,7 @@ Changes are listed from newest to oldest. Earlier versions were private developm
 - Automatic migration of private test-build shipping inventories and wake-up markers, preserving item quantities, quality, custom data, and existing ICGNS inventories.
 - Migration of disconnected players' retained shipping items and safe repeat imports without duplication.
 
-## 1.1.1
+## 0.2.1
 
 ### Fixed
 
@@ -24,7 +24,7 @@ Changes are listed from newest to oldest. Earlier versions were private developm
 - Preserved visible scene colors during saving with opaque world-buffer rendering.
 - Kept the scene available for capture at 100% zoom.
 
-## 1.1.0
+## 0.2.0
 
 ### Changed
 
@@ -33,7 +33,7 @@ Changes are listed from newest to oldest. Earlier versions were private developm
 - Kept ordinary 6AM save transitions visible with a small save icon.
 - Simplified the morning notification to "6AM, a new day begins!" (with a French translation).
 
-## 1.0.0
+## 0.1.0
 
 ### Added
 

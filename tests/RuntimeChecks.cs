@@ -214,7 +214,7 @@ internal static class RuntimeChecks
         // Read the real private-build ID from the preserved build archive. The public
         // source and assembly don't need to retain its former name as a string.
         string previewArchive = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory,
-            "..", "..", "..", "..", ".tools", "release-history", "preview-1.1.1.zip"));
+            "..", "..", "..", "..", ".tools", "release-history", "preview-0.2.1.zip"));
         if (!File.Exists(previewArchive))
         {
             Console.WriteLine("Private-preview archive unavailable: import checks skipped.");

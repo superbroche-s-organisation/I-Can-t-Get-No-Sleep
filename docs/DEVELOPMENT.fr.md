@@ -27,7 +27,7 @@ Les mini-bacs sont pris en compte : leur contenu invendu est transféré dans le
 ## Installation
 
 1. Fermez Stardew Valley.
-2. Ouvrez `artifacts/ICGNS-1.1.2.zip` et extrayez le dossier **ICGNS** dans le dossier `Mods` du jeu (remplacez les fichiers d'une version précédente).
+2. Ouvrez `artifacts/ICGNS-1.0.0.zip` et extrayez le dossier **ICGNS** dans le dossier `Mods` du jeu (remplacez les fichiers d'une version précédente).
 3. Relancez le jeu avec SMAPI.
 
 Le dossier installé doit contenir :
@@ -66,15 +66,15 @@ Le paramètre `-GamePath` peut être omis si le journal SMAPI permet de retrouve
 
 Les vérifications automatisées utilisent les DLL du jeu installé pour installer les patches Harmony, contrôler les règles de vente, vérifier la conservation/sérialisation des objets et vérifier que l'affichage discret débloque bien le démarrage de la sauvegarde native. Elles contrôlent aussi la continuité du lever du soleil et le patch de l'horloge ItsStardewTime. Elles s'exécutent dans un processus séparé et ne chargent aucune sauvegarde du joueur. Une session réelle à plusieurs reste à vérifier en jeu.
 
-L'option `-RunGraphicsTests` exécute aussi un test de rendu MonoGame sur le GPU dans une fenêtre invisible, avec les paramètres de mélange lus dans la DLL du jeu. Ce test reproduit le noir de la version 1.1.0, puis vérifie que chaque minute de l'aube corrigée éclaircit la scène jusqu'à la luminosité du matin, par temps clair comme sous la pluie. Il ne remplace pas une vérification en jeu de tous les événements et mods installés.
+L'option `-RunGraphicsTests` exécute aussi un test de rendu MonoGame sur le GPU dans une fenêtre invisible, avec les paramètres de mélange lus dans la DLL du jeu. Ce test reproduit le noir de la version 0.2.0, puis vérifie que chaque minute de l'aube corrigée éclaircit la scène jusqu'à la luminosité du matin, par temps clair comme sous la pluie. Il ne remplace pas une vérification en jeu de tous les événements et mods installés.
 
 Pour vérifier en jeu : déposer un objet, rester jusqu'à 6 h, constater l'absence de vente et la date suivante ; quitter et recharger, vérifier le bac ; passer une deuxième journée sans dormir, puis dormir et vérifier que les objets sont vendus une seule fois. Vérifier aussi qu'un évanouissement par épuisement déclenche la vente au lendemain. En multijoueur, vérifier les nuits mixtes, les évanouissements et l'annulation du sommeil.
 
 Pour les changements visuels : vérifier l'horloge à minuit et à 1 h, le lever progressif du soleil entre 4 h et 6 h, l'icône de sauvegarde, l'absence d'écran noir sur une journée ordinaire et le message court au matin. Tester aussi une nuit avec un niveau gagné ou un événement nocturne.
 
-La version **1.1.1** corrige l'aube qui assombrissait le monde jusqu'au noir : le masque de lumière du jeu est soustractif, et doit donc diminuer jusqu'à zéro pour retrouver le plein jour. L'image conservée pendant la sauvegarde est affichée en mode opaque, comme le monde dans le moteur du jeu, et la capture reste disponible à 100 % de zoom. Les règles de vente et la sauvegarde native restent identiques.
+La version **0.2.1** corrige l'aube qui assombrissait le monde jusqu'au noir : le masque de lumière du jeu est soustractif, et doit donc diminuer jusqu'à zéro pour retrouver le plein jour. L'image conservée pendant la sauvegarde est affichée en mode opaque, comme le monde dans le moteur du jeu, et la capture reste disponible à 100 % de zoom. Les règles de vente et la sauvegarde native restent identiques.
 
-La version **1.1.2** uniformise le nom **I Can't Get No Sleep**, le dossier/DLL **ICGNS** et l'identifiant **Tom.ICGNS**, avec migration des données de la version de test. Voir `CHANGELOG.md` pour l'historique et `docs/README.release.md` pour le guide anglais inclus dans le ZIP.
+La version **1.0.0** uniformise le nom **I Can't Get No Sleep**, le dossier/DLL **ICGNS** et l'identifiant **Tom.ICGNS**, avec migration des données de la version de test. Voir `CHANGELOG.md` pour l'historique et `docs/README.release.md` pour le guide anglais inclus dans le ZIP.
 
 ## Compatibilité et désinstallation
 

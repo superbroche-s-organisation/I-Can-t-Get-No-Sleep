@@ -8,7 +8,7 @@ Shipping-bin items are sold when you sleep or pass out from exhaustion. If you s
 
 ## Download and install
 
-Download **ICGNS-1.1.2.zip** from [GitHub Releases](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases) or use the [ZIP included in this repository](releases/ICGNS-1.1.2.zip?raw=true).
+Download **ICGNS-1.0.0.zip** from [GitHub Releases](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases) or use the [ZIP included in this repository](releases/ICGNS-1.0.0.zip?raw=true).
 
 1. Install SMAPI.
 2. Extract the **ICGNS** folder from the ZIP into your game's **Mods** folder.
