@@ -1,0 +1,66 @@
+name: Publish GitHub release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Verify the version and source archive
+        id: package
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import zipfile
+          from pathlib import Path
+
+          tag = os.environ['RELEASE_TAG']
+          if not re.fullmatch(r'v\d+\.\d+\.\d+', tag):
+              raise SystemExit('Expected a release tag such as v1.1.0')
+          version = tag[1:]
+          manifest = json.loads(Path('ICGNS/manifest.json').read_text())
+          assert manifest['Version'] == version, 'Tag and manifest versions differ'
+          notes = Path(f'docs/RELEASE-{version}.md')
+          assert notes.is_file(), 'Release notes are missing'
+          package = Path(f'releases/ICGNS-{version}-source.zip')
+          with zipfile.ZipFile(package) as archive:
+              assert archive.testzip() is None, 'Source archive is corrupt'
+              prefix = f'ICGNS-{version}-source/'
+              for name in ['CHANGELOG.md', 'ICGNS/manifest.json', 'ICGNS/ModConfig.cs', 'ICGNS/ModEntry.cs']:
+                  assert archive.read(prefix + name) == Path(name).read_bytes(), f'Stale archive entry: {name}'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'version={version}\n')
+              output.write(f'archive={package}\n')
+          PY
+
+      - name: Publish the source release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_VERSION: ${{ steps.package.outputs.version }}
+          SOURCE_ARCHIVE: ${{ steps.package.outputs.archive }}
+        run: |
+          gh release create "$RELEASE_TAG" \
+            "$SOURCE_ARCHIVE#ICGNS $RELEASE_VERSION sources" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "ICGNS $RELEASE_VERSION — Optional sunrise lighting" \
+            --notes-file "docs/RELEASE-$RELEASE_VERSION.md" \
+            --latest=false
