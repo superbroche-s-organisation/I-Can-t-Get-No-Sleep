@@ -13,6 +13,7 @@ Changes are listed from newest to oldest. Earlier versions were private developm
 
 - Setting `EnableSunrise` to `false` leaves dawn lighting to other mods. The 6AM day change, automatic save, save icon, and shipping rules remain active.
 - Each player can choose this visual setting independently. Restart the game after changing it.
+- The compiled Windows/SMAPI package is available as `ICGNS-1.1.0.zip` for direct installation and Nexus Mods uploads.
 - GitHub publication now requires a verified installable `ICGNS-<version>.zip`, with GitHub's automatic source archives below it. Publishing a new release containing only sources is blocked.
 
 ### Configuration

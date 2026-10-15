@@ -20,6 +20,10 @@ Requires Stardew Valley **1.6.15 (build 24356)**, SMAPI **4.5.2 or later**, and 
 
 GitHub's **Source code (zip)** and **Source code (tar.gz)** downloads are provided separately for development.
 
+## Validation
+
+The Windows mod package was compiled from the existing `v1.1.0` tag using the real game and SMAPI libraries. All 331 automated checks passed, including configuration on/off, the installed game's Harmony patches, item retention and migration, and sunrise rendering on the GPU. The ZIP's assembly version and packaged documents were validated against the tagged sources.
+
 Live compatibility with Dynamic Dawn/Dusk and Golden Hours still needs verification.
 
 See [CHANGELOG.md](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/blob/main/CHANGELOG.md) for the complete version history.

@@ -28,13 +28,17 @@ The package validator can also be run separately:
 
 The ZIP must contain only the `ICGNS` folder with its compiled DLL, manifest, translations, English player guide and changelog. Game libraries, source files and development tools must not be bundled.
 
-## Repair the existing v1.1.0 release
+## Publish or repair an existing tag
 
-Its installable ZIP has not been built in the cloud because the Stardew Valley/SMAPI libraries are unavailable there. The current extra source asset is not the mod package.
+Build the selected tag with the real game and SMAPI libraries, and validate the ZIP against those tagged sources. Do not move an existing tag. Current release tools and notes can be updated on `main` without changing the tagged runtime code.
 
-Build from the existing v1.1.0 tag with `-RunTests`, validate against those tagged sources, and commit the resulting `releases/ICGNS-1.1.0.zip` to `main`. Do not move the existing tag. In GitHub Actions, run **Publish GitHub release** on `main` with `tag` set to `v1.1.0`.
+Commit the verified `releases/ICGNS-<version>.zip` to `main`. In GitHub Actions, run **Publish GitHub release** on `main` with `tag` set to the existing tag, for example `v1.1.0`.
 
-The workflow validates the ZIP against the tagged source files, attaches it, updates the release title and notes, and then removes `ICGNS-1.1.0-source.zip` from the release. GitHub's automatic source archives remain available. A different existing mod ZIP is never overwritten.
+The workflow validates the ZIP against the tagged source files, attaches it, updates the release title and notes, and then removes any extra custom source ZIP from the release. GitHub's automatic source archives remain available. A different existing mod ZIP is never overwritten.
+
+## Current v1.1.0 package
+
+`ICGNS-1.1.0.zip` is the compiled Windows/SMAPI mod with the `EnableSunrise` setting. It was built from the preserved `v1.1.0` tag with the real game libraries and passed 331 checks, including both configuration modes and GPU rendering. Its packaged documentation and changelog match the tag.
 
 ## Existing v1.0.0 package
 

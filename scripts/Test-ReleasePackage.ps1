@@ -29,6 +29,8 @@ foreach ($translation in Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'ICG
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archive = $null
+$originalProcessDirectory = [System.IO.Directory]::GetCurrentDirectory()
+$temporaryRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd([System.IO.Path]::DirectorySeparatorChar)
 $temporary = Join-Path ([System.IO.Path]::GetTempPath()) ("icgns-package-" + [guid]::NewGuid().ToString('N'))
 try {
     $archive = [System.IO.Compression.ZipFile]::OpenRead([System.IO.Path]::GetFullPath($PackagePath))
@@ -69,6 +71,13 @@ try {
 }
 finally {
     if ($null -ne $archive) { $archive.Dispose() }
-    if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }
+    [System.IO.Directory]::SetCurrentDirectory($originalProcessDirectory)
+    if (Test-Path -LiteralPath $temporary) {
+        $resolvedTemporary = (Resolve-Path -LiteralPath $temporary).ProviderPath
+        if ((Split-Path -Parent $resolvedTemporary) -ne $temporaryRoot -or (Split-Path -Leaf $resolvedTemporary) -notmatch '^icgns-package-[0-9a-f]{32}$') {
+            throw 'Unexpected temporary package-validation directory.'
+        }
+        Remove-Item -LiteralPath $resolvedTemporary -Recurse -Force
+    }
 }
 Write-Output "Paquet installable vérifié : $PackagePath (version $($manifest.Version))."

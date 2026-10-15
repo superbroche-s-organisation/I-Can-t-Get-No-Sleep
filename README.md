@@ -8,9 +8,9 @@ Shipping-bin items are sold when you sleep or pass out from exhaustion. If you s
 
 ## Download and install
 
-Version **1.1.0** adds the optional sunrise setting. Its installable ZIP still requires compilation with the game libraries. Download the [1.1.0 source archive](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/archive/refs/tags/v1.1.0.zip) and follow [Build from source](#build-from-source) to create `artifacts/ICGNS-1.1.0.zip` for installation or upload to Nexus Mods.
+Download **[ICGNS-1.1.0.zip](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/download/v1.1.0/ICGNS-1.1.0.zip)** from the [v1.1.0 release](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/tag/v1.1.0), or use the [ZIP included in this repository](releases/ICGNS-1.1.0.zip?raw=true). This is the compiled mod for installation and Nexus Mods uploads, including the optional sunrise setting.
 
-The last precompiled package is [ICGNS-1.0.0.zip](releases/ICGNS-1.0.0.zip?raw=true). It does not include the `EnableSunrise` setting.
+GitHub also provides automatic **Source code (zip)** and **Source code (tar.gz)** downloads for development.
 
 1. Install SMAPI.
 2. Extract the **ICGNS** folder from the ZIP into your game's **Mods** folder.
