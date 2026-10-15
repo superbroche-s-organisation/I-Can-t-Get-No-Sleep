@@ -4,13 +4,10 @@ using System.Xml.Serialization;
 using HarmonyLib;
 using StardewValley;
 using StardewValley.Inventories;
-using StardewValley.Objects;
-using StardewValley.Tools;
 using StardewValley.BellsAndWhistles;
 using System.Runtime.CompilerServices;
 using Netcode;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewValley.Menus;
 using System.Runtime.Loader;
 using System.IO.Compression;
@@ -24,6 +21,7 @@ internal static class RuntimeChecks
 
     internal static void Run(string gamePath, bool graphics)
     {
+        ConfigurationDefaults();
         ShippingRules();
         PassOutShipping();
         ActualGamePatches();
@@ -35,6 +33,14 @@ internal static class RuntimeChecks
         if (graphics)
             GraphicsChecks.Run(gamePath, Check);
         Console.WriteLine($"{checks} vérifications réussies (règles, patches, conservation, sérialisation et lumière{(graphics ? ", rendu GPU inclus" : "")}).");
+    }
+
+    private static void ConfigurationDefaults()
+    {
+        Check(JsonSerializer.Deserialize<ModConfig>("{}")!.EnableSunrise,
+            "An absent sunrise setting must preserve the existing lighting behavior.");
+        Check(!JsonSerializer.Deserialize<ModConfig>("{\"EnableSunrise\":false}")!.EnableSunrise,
+            "The config must allow other lighting mods to take over sunrise.");
     }
 
     private static void ShippingRules()
@@ -112,31 +118,26 @@ internal static class RuntimeChecks
             "Sales, offline sales and clearing must all use the filtered bin.");
 
         // Compile Harmony's actual replacement methods to validate stack balance and patch signatures.
-        Harmony harmony = new("Tom.ICGNS.RuntimeChecks");
-        try
+        foreach (bool enableSunrise in new[] { true, false })
         {
-            harmony.Patch(clock, transpiler: Patch(nameof(GamePatches.ExtendClock)));
-            harmony.Patch(update, transpiler: Patch(nameof(GamePatches.RemoveTimedPassOut)));
-            harmony.Patch(farmerUpdate, transpiler: Patch(nameof(GamePatches.KeepCombatDefeat)));
-            harmony.Patch(AccessTools.Method(typeof(FishingRod), nameof(FishingRod.DoFunction)), transpiler: Patch(nameof(GamePatches.KeepPondFishing)));
-            harmony.Patch(AccessTools.Method(typeof(Farmer), nameof(Farmer.passOutFromTired)), prefix: Patch(nameof(GamePatches.RecordPassOut)));
-            harmony.Patch(settlement, transpiler: Patch(nameof(GamePatches.ChangeSettlement)));
-            harmony.Patch(AccessTools.Method(typeof(Farmer), nameof(Farmer.dayupdate)),
-                prefix: Patch(nameof(GamePatches.PreserveEnergyBeforeDayUpdate)), postfix: Patch(nameof(GamePatches.PreserveEnergyAfterDayUpdate)));
-            harmony.Patch(AccessTools.Method(typeof(GameLocation), nameof(GameLocation.CanWakeUpHere)), prefix: Patch(nameof(GamePatches.AllowAwakeLocation)));
-            harmony.Patch(AccessTools.Method(typeof(BedFurniture), nameof(BedFurniture.ApplyWakeUpPosition)), postfix: Patch(nameof(GamePatches.AfterWakeUp)));
-            harmony.Patch(AccessTools.Method(typeof(DayTimeMoneyBox), nameof(DayTimeMoneyBox.draw), new[] { typeof(SpriteBatch) }),
-                prefix: Patch(nameof(GamePatches.BeforeClockDraw)), transpiler: Patch(nameof(GamePatches.NormalClockColor)));
-            harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock)),
-                postfix: new HarmonyMethod(typeof(Sunrise), nameof(Sunrise.AfterClockUpdate)));
-            harmony.Patch(AccessTools.Method(typeof(Game1), "_draw"), prefix: Patch(nameof(GamePatches.DrawAwakeTransition)));
-            harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.ShouldDrawOnBuffer)),
-                postfix: Patch(nameof(GamePatches.KeepDawnOnBuffer)));
-            Check(harmony.GetPatchedMethods().Count() == 13, "All thirteen Harmony patches install on the actual game.");
-        }
-        finally
-        {
-            harmony.UnpatchAll(harmony.Id);
+            Harmony harmony = new($"Tom.ICGNS.RuntimeChecks.{enableSunrise}");
+            try
+            {
+                ModEntry.ApplyPatches(harmony, new ModConfig { EnableSunrise = enableSunrise });
+                HashSet<MethodBase> patched = harmony.GetPatchedMethods().ToHashSet();
+                Check(patched.Count == (enableSunrise ? 13 : 12), "All required patches must install in either lighting mode.");
+                Check(patched.Contains(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock))) == enableSunrise,
+                    "The sunrise lighting patch must only be installed when enabled.");
+                Check(patched.Contains(clock) && patched.Contains(update) && patched.Contains(settlement),
+                    "Disabling sunrise must retain the extended clock, pass-out and shipping patches.");
+                Check(patched.Contains(AccessTools.Method(typeof(Game1), "_draw"))
+                    && patched.Contains(AccessTools.Method(typeof(Game1), nameof(Game1.ShouldDrawOnBuffer))),
+                    "The 6 AM save display must remain available in either lighting mode.");
+            }
+            finally
+            {
+                harmony.UnpatchAll(harmony.Id);
+            }
         }
     }
 

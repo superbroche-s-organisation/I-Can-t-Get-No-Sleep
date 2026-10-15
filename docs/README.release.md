@@ -17,6 +17,18 @@ The installed folder should contain `Mods/ICGNS/manifest.json` and `Mods/ICGNS/I
 
 For an update, close the game and replace the previous installation with the new ICGNS folder. If you used a private test build, remove its old mod folder before installing ICGNS so both builds cannot run together. Items retained by the test build are imported automatically when you load your save.
 
+## Configuration
+
+To let **Dynamic Dawn/Dusk**, **Golden Hours**, or another lighting mod handle sunrise, launch the game once with ICGNS and close it. In `Mods/ICGNS/config.json`, set:
+
+```json
+{
+  "EnableSunrise": false
+}
+```
+
+Restart the game to apply the change. The default is `true`, preserving ICGNS's gradual outdoor sunrise from 4AM to 6AM. Disabling it leaves the 6AM day change, automatic save, save icon, and shipping behavior active.
+
 ## Main features
 
 - Removes the automatic 2AM pass-out; exhaustion and combat still work normally.

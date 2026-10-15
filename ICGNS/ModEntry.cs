@@ -18,27 +18,11 @@ public sealed class ModEntry : Mod
     public override void Entry(IModHelper helper)
     {
         Instance = this;
+        ModConfig config = helper.ReadConfig<ModConfig>();
         Harmony harmony = new(ModManifest.UniqueID);
         try
         {
-            harmony.Patch(GamePatches.FindClockBody(), transpiler: Patch(nameof(GamePatches.ExtendClock)));
-            harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateOther)), transpiler: Patch(nameof(GamePatches.RemoveTimedPassOut)));
-            harmony.Patch(AccessTools.Method(typeof(Farmer), nameof(Farmer.Update)), transpiler: Patch(nameof(GamePatches.KeepCombatDefeat)));
-            harmony.Patch(AccessTools.Method(typeof(FishingRod), nameof(FishingRod.DoFunction)), transpiler: Patch(nameof(GamePatches.KeepPondFishing)));
-            harmony.Patch(AccessTools.Method(typeof(Farmer), nameof(Farmer.passOutFromTired)), prefix: Patch(nameof(GamePatches.RecordPassOut)));
-            harmony.Patch(AccessTools.EnumeratorMoveNext(AccessTools.Method(typeof(Game1), "_newDayAfterFade")),
-                transpiler: Patch(nameof(GamePatches.ChangeSettlement)));
-            harmony.Patch(AccessTools.Method(typeof(Farmer), nameof(Farmer.dayupdate)),
-                prefix: Patch(nameof(GamePatches.PreserveEnergyBeforeDayUpdate)), postfix: Patch(nameof(GamePatches.PreserveEnergyAfterDayUpdate)));
-            harmony.Patch(AccessTools.Method(typeof(GameLocation), nameof(GameLocation.CanWakeUpHere)), prefix: Patch(nameof(GamePatches.AllowAwakeLocation)));
-            harmony.Patch(AccessTools.Method(typeof(BedFurniture), nameof(BedFurniture.ApplyWakeUpPosition)), postfix: Patch(nameof(GamePatches.AfterWakeUp)));
-            harmony.Patch(AccessTools.Method(typeof(DayTimeMoneyBox), nameof(DayTimeMoneyBox.draw), new[] { typeof(SpriteBatch) }),
-                prefix: Patch(nameof(GamePatches.BeforeClockDraw)), transpiler: Patch(nameof(GamePatches.NormalClockColor)));
-            harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock)),
-                postfix: new HarmonyMethod(typeof(Sunrise), nameof(Sunrise.AfterClockUpdate)));
-            harmony.Patch(AccessTools.Method(typeof(Game1), "_draw"), prefix: Patch(nameof(GamePatches.DrawAwakeTransition)));
-            harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.ShouldDrawOnBuffer)),
-                postfix: Patch(nameof(GamePatches.KeepDawnOnBuffer)));
+            ApplyPatches(harmony, config);
         }
         catch (Exception exception)
         {
@@ -64,6 +48,31 @@ public sealed class ModEntry : Mod
     }
 
     private static HarmonyMethod Patch(string name) => new(typeof(GamePatches), name);
+
+    internal static void ApplyPatches(Harmony harmony, ModConfig config)
+    {
+        harmony.Patch(GamePatches.FindClockBody(), transpiler: Patch(nameof(GamePatches.ExtendClock)));
+        harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateOther)), transpiler: Patch(nameof(GamePatches.RemoveTimedPassOut)));
+        harmony.Patch(AccessTools.Method(typeof(Farmer), nameof(Farmer.Update)), transpiler: Patch(nameof(GamePatches.KeepCombatDefeat)));
+        harmony.Patch(AccessTools.Method(typeof(FishingRod), nameof(FishingRod.DoFunction)), transpiler: Patch(nameof(GamePatches.KeepPondFishing)));
+        harmony.Patch(AccessTools.Method(typeof(Farmer), nameof(Farmer.passOutFromTired)), prefix: Patch(nameof(GamePatches.RecordPassOut)));
+        harmony.Patch(AccessTools.EnumeratorMoveNext(AccessTools.Method(typeof(Game1), "_newDayAfterFade")),
+            transpiler: Patch(nameof(GamePatches.ChangeSettlement)));
+        harmony.Patch(AccessTools.Method(typeof(Farmer), nameof(Farmer.dayupdate)),
+            prefix: Patch(nameof(GamePatches.PreserveEnergyBeforeDayUpdate)), postfix: Patch(nameof(GamePatches.PreserveEnergyAfterDayUpdate)));
+        harmony.Patch(AccessTools.Method(typeof(GameLocation), nameof(GameLocation.CanWakeUpHere)), prefix: Patch(nameof(GamePatches.AllowAwakeLocation)));
+        harmony.Patch(AccessTools.Method(typeof(BedFurniture), nameof(BedFurniture.ApplyWakeUpPosition)), postfix: Patch(nameof(GamePatches.AfterWakeUp)));
+        harmony.Patch(AccessTools.Method(typeof(DayTimeMoneyBox), nameof(DayTimeMoneyBox.draw), new[] { typeof(SpriteBatch) }),
+            prefix: Patch(nameof(GamePatches.BeforeClockDraw)), transpiler: Patch(nameof(GamePatches.NormalClockColor)));
+        if (config.EnableSunrise)
+        {
+            harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock)),
+                postfix: new HarmonyMethod(typeof(Sunrise), nameof(Sunrise.AfterClockUpdate)));
+        }
+        harmony.Patch(AccessTools.Method(typeof(Game1), "_draw"), prefix: Patch(nameof(GamePatches.DrawAwakeTransition)));
+        harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.ShouldDrawOnBuffer)),
+            postfix: Patch(nameof(GamePatches.KeepDawnOnBuffer)));
+    }
 
     private void OnUpdateTicked(object? sender, UpdateTickedEventArgs e)
     {

@@ -2,6 +2,12 @@
 
 Changes are listed from newest to oldest. Earlier versions were private development builds.
 
+## Unreleased
+
+### Added
+
+- Added `EnableSunrise` in `config.json` (default: `true`). Set it to `false` to disable ICGNS's gradual dawn lighting when using mods such as Dynamic Dawn/Dusk or Golden Hours, while retaining the 6AM day change and automatic save.
+
 ## 1.0.0 — 2026-10-15
 
 ### Changed

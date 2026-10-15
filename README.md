@@ -18,6 +18,18 @@ Requires Stardew Valley **1.6.15 (build 24356)**, SMAPI **4.5.2 or later**, and 
 
 For an update from a private test build, close the game and remove its old mod folder before installing ICGNS. Retained shipping items and wake-up markers are imported automatically when loading a save.
 
+## Configuration
+
+To let **Dynamic Dawn/Dusk**, **Golden Hours**, or another lighting mod control sunrise, launch the game once with ICGNS, close it, then edit `Mods/ICGNS/config.json`:
+
+```json
+{
+  "EnableSunrise": false
+}
+```
+
+Restart the game to apply the change. `EnableSunrise` defaults to `true`, which keeps ICGNS's gradual lighting from 4AM to 6AM. Setting it to `false` disables only that lighting effect; the new day, automatic save, save icon, and shipping rules remain active at 6AM.
+
 ## Features
 
 - Keep playing past 2AM, with the next day starting and saving at 6AM.

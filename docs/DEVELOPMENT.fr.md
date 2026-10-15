@@ -39,6 +39,18 @@ Mods\ICGNS\ICGNS.dll
 
 Aucun réglage n'est nécessaire. Le projet produit le ZIP dans son propre dossier ; la compilation ne modifie pas l'installation du jeu. Le paquet Nexus contient un guide d'installation en anglais.
 
+### Configuration de l'aube
+
+Pour laisser **Dynamic Dawn/Dusk**, **Golden Hours** ou un autre mod gérer la lumière du matin, lancez une fois le jeu avec ICGNS puis fermez-le. Dans `Mods/ICGNS/config.json`, définissez :
+
+```json
+{
+  "EnableSunrise": false
+}
+```
+
+Relancez le jeu pour appliquer ce réglage. La valeur par défaut, `true`, conserve l'aube progressive d'ICGNS entre 4 h et 6 h. Avec `false`, le patch d'éclairage n'est pas installé. Le passage au lendemain à 6 h, la sauvegarde automatique, son icône et les règles d'expédition restent actifs. Ce réglage visuel est propre à chaque joueur.
+
 Pour passer d'une version de test à ICGNS, fermez le jeu et retirez le dossier de la version de test avant d'installer le nouveau dossier **ICGNS**. Les deux versions ne doivent pas être chargées ensemble. Les objets conservés et les marqueurs de position de la version de test sont repris automatiquement avec l'identifiant **Tom.ICGNS** au chargement.
 
 ## Multijoueur
@@ -65,6 +77,8 @@ Depuis le dossier du projet, dans PowerShell :
 Le paramètre `-GamePath` peut être omis si le journal SMAPI permet de retrouver le jeu. Toutes les références viennent de l'installation locale ; aucun fichier du jeu ou de SMAPI n'est inclus dans le ZIP.
 
 Les vérifications automatisées utilisent les DLL du jeu installé pour installer les patches Harmony, contrôler les règles de vente, vérifier la conservation/sérialisation des objets et vérifier que l'affichage discret débloque bien le démarrage de la sauvegarde native. Elles contrôlent aussi la continuité du lever du soleil et le patch de l'horloge ItsStardewTime. Elles s'exécutent dans un processus séparé et ne chargent aucune sauvegarde du joueur. Une session réelle à plusieurs reste à vérifier en jeu.
+
+Elles vérifient également la valeur par défaut d'`EnableSunrise` et l'installation des patches dans les deux modes : le mode désactivé retire uniquement le patch de lumière, en conservant ceux de l'horloge, de l'expédition et de l'affichage de sauvegarde.
 
 L'option `-RunGraphicsTests` exécute aussi un test de rendu MonoGame sur le GPU dans une fenêtre invisible, avec les paramètres de mélange lus dans la DLL du jeu. Ce test reproduit le noir de la version 0.2.0, puis vérifie que chaque minute de l'aube corrigée éclaircit la scène jusqu'à la luminosité du matin, par temps clair comme sous la pluie. Il ne remplace pas une vérification en jeu de tous les événements et mods installés.
 
