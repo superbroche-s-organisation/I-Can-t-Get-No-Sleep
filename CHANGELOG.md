@@ -6,7 +6,25 @@ Changes are listed from newest to oldest. Earlier versions were private developm
 
 ### Added
 
-- Added `EnableSunrise` in `config.json` (default: `true`). Set it to `false` to disable ICGNS's gradual dawn lighting when using mods such as Dynamic Dawn/Dusk or Golden Hours, while retaining the 6AM day change and automatic save.
+- Added the optional `EnableSunrise` setting in `Mods/ICGNS/config.json`. Its default value is `true`, preserving ICGNS's gradual outdoor sunrise from 4AM to 6AM.
+- Added English and French instructions for using the setting with lighting mods such as Dynamic Dawn/Dusk and Golden Hours.
+
+### Changed
+
+- Setting `EnableSunrise` to `false` leaves dawn lighting to other mods. The 6AM day change, automatic save, save icon, and shipping rules remain active.
+- Each player can choose this visual setting independently. Restart the game after changing it.
+
+### Configuration
+
+Launch the game once with this version, close it, and set the following in `Mods/ICGNS/config.json` to turn off ICGNS's dawn lighting:
+
+```json
+{
+  "EnableSunrise": false
+}
+```
+
+Compatibility in a live game with Dynamic Dawn/Dusk and Golden Hours still needs verification.
 
 ## 1.0.0 — 2026-10-15
 
