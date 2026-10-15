@@ -2,7 +2,7 @@
 
 Changes are listed from newest to oldest. Earlier versions were private development builds.
 
-## Unreleased
+## 1.1.0 — 2026-10-15
 
 ### Added
 

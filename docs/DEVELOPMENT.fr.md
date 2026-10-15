@@ -27,7 +27,7 @@ Les mini-bacs sont pris en compte : leur contenu invendu est transféré dans le
 ## Installation
 
 1. Fermez Stardew Valley.
-2. Ouvrez `artifacts/ICGNS-1.0.0.zip` et extrayez le dossier **ICGNS** dans le dossier `Mods` du jeu (remplacez les fichiers d'une version précédente).
+2. Après compilation, ouvrez `artifacts/ICGNS-1.1.0.zip` et extrayez le dossier **ICGNS** dans le dossier `Mods` du jeu (remplacez les fichiers d'une version précédente).
 3. Relancez le jeu avec SMAPI.
 
 Le dossier installé doit contenir :
@@ -89,6 +89,8 @@ Pour les changements visuels : vérifier l'horloge à minuit et à 1 h, le lever
 La version **0.2.1** corrige l'aube qui assombrissait le monde jusqu'au noir : le masque de lumière du jeu est soustractif, et doit donc diminuer jusqu'à zéro pour retrouver le plein jour. L'image conservée pendant la sauvegarde est affichée en mode opaque, comme le monde dans le moteur du jeu, et la capture reste disponible à 100 % de zoom. Les règles de vente et la sauvegarde native restent identiques.
 
 La version **1.0.0** uniformise le nom **I Can't Get No Sleep**, le dossier/DLL **ICGNS** et l'identifiant **Tom.ICGNS**, avec migration des données de la version de test. Voir `CHANGELOG.md` pour l'historique et `docs/README.release.md` pour le guide anglais inclus dans le ZIP.
+
+La version **1.1.0** ajoute le réglage `EnableSunrise`, qui permet de laisser un autre mod gérer l'éclairage de l'aube. Le ZIP à installer ou à publier sur Nexus Mods doit être compilé avec les DLL du jeu et de SMAPI ; l'archive des sources n'est pas un paquet de mod installable.
 
 ## Compatibilité et désinstallation
 
