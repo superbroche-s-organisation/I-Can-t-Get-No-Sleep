@@ -12,18 +12,14 @@ To let Dynamic Dawn/Dusk, Golden Hours, or another lighting mod handle dawn, lau
 
 Restart the game to apply the setting. Each player can choose it independently. The 6AM day change, automatic save, save icon, and shipping behavior remain active.
 
-## Download and build status
+## Installation
 
-This release provides **source code only**. `ICGNS-1.1.0-source.zip` is not an installable mod package and is not the main file to upload to Nexus Mods.
+Download **ICGNS-1.1.0.zip**, extract the **ICGNS** folder into the game's **Mods** folder, and launch Stardew Valley through SMAPI. This ZIP is also the file to upload to Nexus Mods.
 
-On a Windows PC with Stardew Valley 1.6.15 (build 24356), SMAPI 4.5.2 or later, and a .NET SDK that can target .NET 6, extract the source archive and run from its project directory:
+Requires Stardew Valley **1.6.15 (build 24356)**, SMAPI **4.5.2 or later**, and **Windows 64-bit**. Close the game before replacing an earlier version of the mod.
 
-```powershell
-.\scripts\Build.ps1 -GamePath 'C:\Path\To\Stardew Valley' -RunTests
-```
+GitHub's **Source code (zip)** and **Source code (tar.gz)** downloads are provided separately for development.
 
-After the build and tests succeed, the installable package will be `artifacts/ICGNS-1.1.0.zip`.
-
-The cloud checks passed for C# syntax and both targeted configuration checks. Full compilation and functional tests remain blocked by the absence of the game/SMAPI libraries. Live compatibility with Dynamic Dawn/Dusk and Golden Hours has not yet been verified.
+Live compatibility with Dynamic Dawn/Dusk and Golden Hours still needs verification.
 
 See [CHANGELOG.md](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/blob/main/CHANGELOG.md) for the complete version history.

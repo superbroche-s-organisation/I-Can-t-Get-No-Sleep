@@ -8,7 +8,7 @@ Shipping-bin items are sold when you sleep or pass out from exhaustion. If you s
 
 ## Download and install
 
-Version **1.1.0** adds the optional sunrise setting. Download the [1.1.0 source archive](releases/ICGNS-1.1.0-source.zip?raw=true) and follow [Build from source](#build-from-source) to create `artifacts/ICGNS-1.1.0.zip` for installation or upload to Nexus Mods. The source archive itself is not an installable mod package.
+Version **1.1.0** adds the optional sunrise setting. Its installable ZIP still requires compilation with the game libraries. Download the [1.1.0 source archive](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/archive/refs/tags/v1.1.0.zip) and follow [Build from source](#build-from-source) to create `artifacts/ICGNS-1.1.0.zip` for installation or upload to Nexus Mods.
 
 The last precompiled package is [ICGNS-1.0.0.zip](releases/ICGNS-1.0.0.zip?raw=true). It does not include the `EnableSunrise` setting.
 
@@ -59,6 +59,8 @@ From the repository root in PowerShell:
 ```
 
 The script writes the mod ZIP to `artifacts/`. Use `-RunGraphicsTests` to also run rendering checks on the GPU in a hidden window. Tests use the installed game's DLLs and do not load a player save. The preview migration checks additionally use a local private-build archive when available; that archive is not distributed.
+
+Every new public release must include an installable `ICGNS-<version>.zip`, followed by GitHub's automatic source archives. The [release procedure](releases/README.md) validates the compiled package and blocks publication when it is missing.
 
 ## Documentation and assets
 

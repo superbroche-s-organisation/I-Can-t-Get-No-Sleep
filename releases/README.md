@@ -1,23 +1,41 @@
 # ICGNS releases
 
-## 1.1.0 source
+Every new public release must have these three downloads, matching v1.0.0:
 
-`ICGNS-1.1.0-source.zip` contains the sources for the optional sunrise setting. It is not an installable mod package and should not be uploaded as the main Nexus Mods file.
+1. **ICGNS-&lt;version&gt;.zip**: the compiled, installable mod, also suitable for Nexus Mods.
+2. **Source code (zip)**: generated automatically by GitHub.
+3. **Source code (tar.gz)**: generated automatically by GitHub.
 
-Extract the source archive, install a .NET SDK that targets .NET 6, then run this command from the extracted project directory in PowerShell on the Windows PC that has Stardew Valley and SMAPI installed:
+Do not attach a custom source ZIP instead of the installable mod. The release workflow stops before publishing if the compiled package is missing or invalid.
+
+## Prepare a version
+
+On the Windows PC with Stardew Valley and SMAPI installed, install a .NET SDK that targets .NET 6 and run from the project directory:
 
 ```powershell
 .\scripts\Build.ps1 -GamePath 'C:\Path\To\Stardew Valley' -RunTests
 ```
 
-The script compiles the updated DLL, runs the functional checks, and writes **`artifacts/ICGNS-1.1.0.zip`**, the package to install or upload to Nexus Mods. Game libraries are required to build and are not included in either archive. The build and functional checks have not been completed in the cloud because those libraries are unavailable there.
+This compiles the mod, runs its functional checks, creates `artifacts/ICGNS-<version>.zip`, and validates its contents and assembly version. Copy the verified ZIP to `releases/ICGNS-<version>.zip`.
 
-## 1.0.0 precompiled package
+Update the changelog and `docs/RELEASE-<version>.md`, keeping the project, manifest and tag versions consistent. Commit the sources, notes and compiled ZIP before pushing the new `v<version>` tag. The workflow uploads only the installable mod ZIP; GitHub adds the two source downloads automatically.
 
-`ICGNS-1.0.0.zip` is the ready-to-install package for Stardew Valley / SMAPI, also suitable for uploading to Nexus Mods.
+The package validator can also be run separately:
 
-This older package does not include the `EnableSunrise` setting.
+```powershell
+.\scripts\Test-ReleasePackage.ps1 -PackagePath .\artifacts\ICGNS-1.1.0.zip
+```
 
-Extract its **ICGNS** folder into the game's **Mods** directory. See the root README for requirements and update instructions.
+The ZIP must contain only the `ICGNS` folder with its compiled DLL, manifest, translations, English player guide and changelog. Game libraries, source files and development tools must not be bundled.
 
-This ZIP contains only the mod DLL, manifest, translations, player guide, and changelog.
+## Repair the existing v1.1.0 release
+
+Its installable ZIP has not been built in the cloud because the Stardew Valley/SMAPI libraries are unavailable there. The current extra source asset is not the mod package.
+
+Build from the existing v1.1.0 tag with `-RunTests`, validate against those tagged sources, and commit the resulting `releases/ICGNS-1.1.0.zip` to `main`. Do not move the existing tag. In GitHub Actions, run **Publish GitHub release** on `main` with `tag` set to `v1.1.0`.
+
+The workflow validates the ZIP against the tagged source files, attaches it, updates the release title and notes, and then removes `ICGNS-1.1.0-source.zip` from the release. GitHub's automatic source archives remain available. A different existing mod ZIP is never overwritten.
+
+## Existing v1.0.0 package
+
+`ICGNS-1.0.0.zip` is the precompiled package. It does not include the `EnableSunrise` setting introduced in 1.1.0.

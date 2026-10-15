@@ -61,4 +61,5 @@ if ($manifest.Name -ne "I Can't Get No Sleep" -or $manifest.UniqueID -ne 'Tom.IC
 }
 $zip = Join-Path $projectRoot "artifacts\ICGNS-$($manifest.Version).zip"
 Compress-Archive -LiteralPath $package -DestinationPath $zip -Force
+& (Join-Path $PSScriptRoot 'Test-ReleasePackage.ps1') -PackagePath $zip -ProjectRoot $projectRoot
 Write-Output "Mod compilé : $zip"

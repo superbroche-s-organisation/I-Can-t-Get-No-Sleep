@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to publish or repair after committing its compiled ZIP
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -14,53 +20,68 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Check out release tools, notes and compiled packages
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          path: release-tools
+          persist-credentials: false
+
       - name: Check out the tagged source
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
+          ref: ${{ inputs.tag || github.ref }}
+          path: source
           persist-credentials: false
 
-      - name: Verify the version and source archive
+      - name: Require a verified installable package
         id: package
+        shell: pwsh
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          python3 - <<'PY'
-          import json
-          import os
-          import re
-          import zipfile
-          from pathlib import Path
+          $ErrorActionPreference = 'Stop'
+          if ($env:RELEASE_TAG -notmatch '^v\d+\.\d+\.\d+$') {
+            throw 'Expected a release tag such as v1.1.0.'
+          }
+          $version = $env:RELEASE_TAG.Substring(1)
+          $manifest = Get-Content source/ICGNS/manifest.json -Raw | ConvertFrom-Json
+          if ($manifest.Version -ne $version) { throw 'Tag and manifest versions differ.' }
+          $archive = Join-Path $env:GITHUB_WORKSPACE "release-tools/releases/ICGNS-$version.zip"
+          $notes = Join-Path $env:GITHUB_WORKSPACE "release-tools/docs/RELEASE-$version.md"
+          if (-not (Test-Path -LiteralPath $notes -PathType Leaf)) { throw 'Release notes are missing.' }
+          & ./release-tools/scripts/Test-ReleasePackage.ps1 -PackagePath $archive -ProjectRoot ./source
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "archive=$archive" >> $env:GITHUB_OUTPUT
+          "notes=$notes" >> $env:GITHUB_OUTPUT
 
-          tag = os.environ['RELEASE_TAG']
-          if not re.fullmatch(r'v\d+\.\d+\.\d+', tag):
-              raise SystemExit('Expected a release tag such as v1.1.0')
-          version = tag[1:]
-          manifest = json.loads(Path('ICGNS/manifest.json').read_text())
-          assert manifest['Version'] == version, 'Tag and manifest versions differ'
-          notes = Path(f'docs/RELEASE-{version}.md')
-          assert notes.is_file(), 'Release notes are missing'
-          package = Path(f'releases/ICGNS-{version}-source.zip')
-          with zipfile.ZipFile(package) as archive:
-              assert archive.testzip() is None, 'Source archive is corrupt'
-              prefix = f'ICGNS-{version}-source/'
-              for name in ['CHANGELOG.md', 'ICGNS/manifest.json', 'ICGNS/ModConfig.cs', 'ICGNS/ModEntry.cs']:
-                  assert archive.read(prefix + name) == Path(name).read_bytes(), f'Stale archive entry: {name}'
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
-              output.write(f'version={version}\n')
-              output.write(f'archive={package}\n')
-          PY
-
-      - name: Publish the source release
+      - name: Publish the mod ZIP with GitHub's automatic source archives
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
           RELEASE_VERSION: ${{ steps.package.outputs.version }}
-          SOURCE_ARCHIVE: ${{ steps.package.outputs.archive }}
+          MOD_ARCHIVE: ${{ steps.package.outputs.archive }}
+          RELEASE_NOTES: ${{ steps.package.outputs.notes }}
         run: |
-          gh release create "$RELEASE_TAG" \
-            "$SOURCE_ARCHIVE#ICGNS $RELEASE_VERSION sources" \
-            --repo "$GITHUB_REPOSITORY" \
-            --verify-tag \
-            --title "ICGNS $RELEASE_VERSION — Optional sunrise lighting" \
-            --notes-file "docs/RELEASE-$RELEASE_VERSION.md" \
-            --latest=false
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets > release-assets.json; then
+            if jq -e --arg name "ICGNS-$RELEASE_VERSION.zip" '.assets[] | select(.name == $name)' release-assets.json > /dev/null; then
+              mkdir existing-package
+              gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+                --pattern "ICGNS-$RELEASE_VERSION.zip" --dir existing-package
+              cmp "$MOD_ARCHIVE" "existing-package/ICGNS-$RELEASE_VERSION.zip"
+            else
+              gh release upload "$RELEASE_TAG" "$MOD_ARCHIVE" --repo "$GITHUB_REPOSITORY"
+            fi
+            gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+              --title "I Can't Get No Sleep $RELEASE_VERSION" --notes-file "$RELEASE_NOTES" \
+              --draft=false --prerelease=false --latest
+            if jq -e --arg name "ICGNS-$RELEASE_VERSION-source.zip" '.assets[] | select(.name == $name)' release-assets.json > /dev/null; then
+              gh release delete-asset "$RELEASE_TAG" "ICGNS-$RELEASE_VERSION-source.zip" \
+                --repo "$GITHUB_REPOSITORY" --yes
+            fi
+          else
+            gh release create "$RELEASE_TAG" "$MOD_ARCHIVE" \
+              --repo "$GITHUB_REPOSITORY" --verify-tag \
+              --title "I Can't Get No Sleep $RELEASE_VERSION" \
+              --notes-file "$RELEASE_NOTES" --latest
+          fi
