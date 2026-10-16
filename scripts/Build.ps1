@@ -38,8 +38,19 @@ if ($RunTests -or $RunGraphicsTests) {
     if ($LASTEXITCODE -ne 0) { throw 'Échec de la restauration des tests.' }
     $testArguments = @($GamePath)
     if ($RunGraphicsTests) { $testArguments += '--graphics' }
-    & $dotnet run --project $tests --no-restore --configuration Release "-p:GamePath=$GamePath" "-p:PathMap=$projectRoot=/_/" -p:UseSharedCompilation=false -- @testArguments
-    if ($LASTEXITCODE -ne 0) { throw 'Échec des vérifications.' }
+    $previousTiered = $env:DOTNET_TieredCompilation
+    $previousComPlusTiered = $env:COMPlus_TieredCompilation
+    try {
+        # The installed Harmony/MonoMod detour runtime needs a stable JIT while tests unpatch methods.
+        $env:DOTNET_TieredCompilation = '0'
+        $env:COMPlus_TieredCompilation = '0'
+        & $dotnet run --project $tests --no-restore --configuration Release "-p:GamePath=$GamePath" "-p:PathMap=$projectRoot=/_/" -p:UseSharedCompilation=false -- @testArguments
+        if ($LASTEXITCODE -ne 0) { throw 'Échec des vérifications.' }
+    }
+    finally {
+        $env:DOTNET_TieredCompilation = $previousTiered
+        $env:COMPlus_TieredCompilation = $previousComPlusTiered
+    }
 }
 
 $package = Join-Path $projectRoot 'artifacts\ICGNS'

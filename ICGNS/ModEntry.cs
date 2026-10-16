@@ -14,15 +14,16 @@ public sealed class ModEntry : Mod
 {
     internal static ModEntry Instance { get; private set; } = null!;
     internal PerScreen<MorningState> State { get; } = new(() => new MorningState());
+    internal ModConfig Config { get; private set; } = new();
 
     public override void Entry(IModHelper helper)
     {
         Instance = this;
-        ModConfig config = helper.ReadConfig<ModConfig>();
+        Config = helper.ReadConfig<ModConfig>();
         Harmony harmony = new(ModManifest.UniqueID);
         try
         {
-            ApplyPatches(harmony, config);
+            ApplyPatches(harmony);
         }
         catch (Exception exception)
         {
@@ -37,7 +38,13 @@ public sealed class ModEntry : Mod
         helper.Events.GameLoop.Saved += OnSaved;
         helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
         helper.Events.GameLoop.DayStarted += OnDayStarted;
-        helper.Events.GameLoop.GameLaunched += (_, _) => IntegrateTimeDisplay(harmony);
+        helper.Events.GameLoop.GameLaunched += (_, _) =>
+        {
+            IntegrateTimeDisplay(harmony);
+            ConfigMenuIntegration.Register(helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu"),
+                ModManifest, () => Config, () => Config = new ModConfig(), () => helper.WriteConfig(Config),
+                key => helper.Translation.Get(key).ToString());
+        };
         helper.Events.GameLoop.ReturnedToTitle += (_, _) =>
         {
             foreach (var screen in State.GetActiveValues())
@@ -49,7 +56,7 @@ public sealed class ModEntry : Mod
 
     private static HarmonyMethod Patch(string name) => new(typeof(GamePatches), name);
 
-    internal static void ApplyPatches(Harmony harmony, ModConfig config)
+    internal static void ApplyPatches(Harmony harmony)
     {
         harmony.Patch(GamePatches.FindClockBody(), transpiler: Patch(nameof(GamePatches.ExtendClock)));
         harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateOther)), transpiler: Patch(nameof(GamePatches.RemoveTimedPassOut)));
@@ -61,14 +68,11 @@ public sealed class ModEntry : Mod
         harmony.Patch(AccessTools.Method(typeof(Farmer), nameof(Farmer.dayupdate)),
             prefix: Patch(nameof(GamePatches.PreserveEnergyBeforeDayUpdate)), postfix: Patch(nameof(GamePatches.PreserveEnergyAfterDayUpdate)));
         harmony.Patch(AccessTools.Method(typeof(GameLocation), nameof(GameLocation.CanWakeUpHere)), prefix: Patch(nameof(GamePatches.AllowAwakeLocation)));
-        harmony.Patch(AccessTools.Method(typeof(BedFurniture), nameof(BedFurniture.ApplyWakeUpPosition)), postfix: Patch(nameof(GamePatches.AfterWakeUp)));
+        harmony.Patch(AccessTools.Method(typeof(BedFurniture), nameof(BedFurniture.ApplyWakeUpPosition)), prefix: Patch(nameof(GamePatches.BeforeWakeUp)));
         harmony.Patch(AccessTools.Method(typeof(DayTimeMoneyBox), nameof(DayTimeMoneyBox.draw), new[] { typeof(SpriteBatch) }),
             prefix: Patch(nameof(GamePatches.BeforeClockDraw)), transpiler: Patch(nameof(GamePatches.NormalClockColor)));
-        if (config.EnableSunrise)
-        {
-            harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock)),
-                postfix: new HarmonyMethod(typeof(Sunrise), nameof(Sunrise.AfterClockUpdate)));
-        }
+        harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock)),
+            postfix: new HarmonyMethod(typeof(Sunrise), nameof(Sunrise.AfterClockUpdate)));
         harmony.Patch(AccessTools.Method(typeof(Game1), "_draw"), prefix: Patch(nameof(GamePatches.DrawAwakeTransition)));
         harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.ShouldDrawOnBuffer)),
             postfix: Patch(nameof(GamePatches.KeepDawnOnBuffer)));
@@ -139,7 +143,7 @@ public sealed class ModEntry : Mod
         Game1.player.modData.Remove(SalePolicy.PassOutDayKey);
         if (Context.IsMainPlayer)
             ShippingStorage.RestoreAfterSaveOrLoad();
-        MorningState.ApplyPosition(Game1.player);
+        MorningState.ApplyPosition(Game1.player, loadingSave: true);
         if (Context.IsMultiplayer)
             Monitor.Log(Helper.Translation.Get("multiplayer"), LogLevel.Info);
     }

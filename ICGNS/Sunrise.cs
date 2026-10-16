@@ -19,8 +19,12 @@ internal static class Sunrise
         => Color.Lerp(night, morning, Progress(time, tickProgress));
 
     internal static void AfterClockUpdate()
+        => UpdateLighting(ModEntry.Instance.Config);
+
+    internal static void UpdateLighting(ModConfig config)
     {
-        if (Game1.timeOfDay < StartTime || Game1.timeOfDay > EndTime || Game1.currentLocation is not { IsOutdoors: true })
+        if (!config.EnableSunrise || Game1.timeOfDay < StartTime || Game1.timeOfDay > EndTime
+            || Game1.currentLocation is not { IsOutdoors: true })
             return;
         int interval = Game1.realMilliSecondsPerGameTenMinutes + Game1.currentLocation.ExtraMillisecondsPerInGameMinute * 10;
         float tickProgress = interval > 0 ? (float)Game1.gameTimeInterval / interval : 0f;

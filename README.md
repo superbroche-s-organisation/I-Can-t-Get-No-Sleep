@@ -8,7 +8,7 @@ Shipping-bin items are sold when you sleep or pass out from exhaustion. If you s
 
 ## Download and install
 
-Download **[ICGNS-1.1.0.zip](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/download/v1.1.0/ICGNS-1.1.0.zip)** from the [v1.1.0 release](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/tag/v1.1.0), or use the [ZIP included in this repository](releases/ICGNS-1.1.0.zip?raw=true). This is the compiled mod for installation and Nexus Mods uploads, including the optional sunrise setting.
+Download **[ICGNS-1.2.0.zip](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/download/v1.2.0/ICGNS-1.2.0.zip)** from the [v1.2.0 release](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/tag/v1.2.0), or use the [ZIP included in this repository](releases/ICGNS-1.2.0.zip?raw=true). This is the compiled mod for installation and Nexus Mods uploads, including the mine fix, sunrise checkbox and saving text.
 
 GitHub also provides automatic **Source code (zip)** and **Source code (tar.gz)** downloads for development.
 
@@ -22,7 +22,9 @@ For an update from a private test build, close the game and remove its old mod f
 
 ## Configuration
 
-To let **Dynamic Dawn/Dusk**, **Golden Hours**, or another lighting mod control sunrise, launch the game once with ICGNS, close it, then edit `Mods/ICGNS/config.json`:
+With **Generic Mod Config Menu** installed, open its mod options, select **I Can't Get No Sleep**, and check or uncheck **Enable sunrise**. The change takes effect immediately; select **Save** to keep it. GMCM is optional.
+
+To let **Dynamic Dawn/Dusk**, **Golden Hours**, or another lighting mod control sunrise, uncheck this option. Without GMCM, launch the game once with ICGNS, close it, then edit `Mods/ICGNS/config.json`:
 
 ```json
 {
@@ -30,19 +32,23 @@ To let **Dynamic Dawn/Dusk**, **Golden Hours**, or another lighting mod control 
 }
 ```
 
-Restart the game to apply the change. `EnableSunrise` defaults to `true`, which keeps ICGNS's gradual lighting from 4AM to 6AM. Setting it to `false` disables only that lighting effect; the new day, automatic save, save icon, and shipping rules remain active at 6AM.
+When editing the JSON file manually, restart the game to load it. `EnableSunrise` defaults to `true`, which keeps ICGNS's gradual lighting from 4AM to 6AM. Setting it to `false` disables only that lighting effect; the new day, automatic save, saving text, and shipping rules remain active at 6AM. Each player can choose this visual setting independently.
 
 ## Features
 
 - Keep playing past 2AM, with the next day starting and saving at 6AM.
 - Retain shipping-bin items until you sleep or pass out from exhaustion.
 - Gradual outdoor sunrise from 4AM to 6AM, respecting clock speed and pauses.
-- Visible scene with a small save icon during ordinary 6AM transitions; the scene briefly freezes while saving.
+- Stay on the same Mines, Skull Cavern or Volcano Dungeon floor at 6AM, with your position and the floor's contents preserved.
+- Visible scene with localized saving text in the bottom-left during ordinary 6AM transitions; the scene briefly freezes while saving.
+- Optional Generic Mod Config Menu checkbox to enable or disable sunrise without restarting.
 - Normal late-hour clock colors, without shaking or hourly fatigue bubbles.
 - Short morning notification: "6AM, a new day begins!"
 - English and French messages.
 
 The native daily farm updates, exhaustion, combat, special overnight events, and required level-up menus remain active. Staying awake does not recover health or energy or charge rescue fees.
+
+Generated dungeon floors are kept during the current session. Quitting and reloading regenerates the floor, placing you at its entrance on the same level. Temporary event maps retain the game's normal fallback.
 
 ## Multiplayer
 

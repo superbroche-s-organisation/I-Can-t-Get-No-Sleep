@@ -2,6 +2,24 @@
 
 Changes are listed from newest to oldest. Earlier versions were private development builds.
 
+## 1.2.0 — 2026-10-16
+
+### Fixed
+
+- Staying awake until 6AM in the Mines, Skull Cavern or Volcano Dungeon no longer sends you home. The occupied floor, its contents, your exact position and facing direction are preserved during the day change.
+- Protected floors include those occupied by awake farmhands. Unoccupied floors and ordinary nights still use the game's normal dungeon cleanup.
+- After quitting and reloading, generated dungeon floors are recreated by the game; you resume at the same floor's entrance to avoid spawning inside a new wall or rock.
+
+### Added
+
+- Optional Generic Mod Config Menu support, with an **Enable sunrise** checkbox and English/French labels and tooltips.
+- The sunrise setting now takes effect immediately from the menu. Save your changes in GMCM to keep them for future sessions.
+
+### Changed
+
+- Replaced the bottom-left save icon with the game's localized saving text and animated dots, while keeping the scene visible during ordinary 6AM transitions.
+- Added regression checks for dungeon continuity, consecutive all-nighters, ordinary sleep, GMCM callbacks, and compatibility with the installed GMCM API.
+
 ## 1.1.0 — 2026-10-15
 
 ### Added

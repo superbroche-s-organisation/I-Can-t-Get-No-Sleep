@@ -1,5 +1,7 @@
 {
   "dawn": "6 h, une nouvelle journée commence !",
+  "config.sunrise.name": "Activer le lever du soleil",
+  "config.sunrise.tooltip": "Éclaircit progressivement l'extérieur entre 4 h et 6 h. Décochez pour laisser un autre mod gérer l'aube. Effet immédiat.",
   "multiplayer": "Multijoueur : installez I Can't Get No Sleep chez l'hôte et chaque joueur. Avec une caisse commune, la vente nécessite que tous les joueurs présents dorment ou s'évanouissent.",
   "patch-error": "I Can't Get No Sleep n'a pas pu appliquer ses changements à cette version du jeu. Le mod est désactivé ; consultez le journal SMAPI."
 }

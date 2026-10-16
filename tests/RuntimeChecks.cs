@@ -25,6 +25,8 @@ internal static class RuntimeChecks
         ShippingRules();
         PassOutShipping();
         ActualGamePatches();
+        DungeonChecks.Run(Check);
+        ConfigMenuChecks.Run(gamePath, Check);
         ItemRetention();
         TeamInventoryPersistence();
         SunriseContinuity();
@@ -116,28 +118,28 @@ internal static class RuntimeChecks
         Check(patchedSettlement.Count(instruction => instruction.Calls(getBin)) == 1, "Mini-bin transfer must use the real bin.");
         Check(patchedSettlement.Count(instruction => instruction.Calls(AccessTools.Method(typeof(GamePatches), nameof(GamePatches.GetSettlementBin)))) == 3,
             "Sales, offline sales and clearing must all use the filtered bin.");
+        Check(patchedSettlement.Count(instruction => instruction.Calls(AccessTools.Method(typeof(DungeonContinuity), nameof(DungeonContinuity.ClearMines)))) == 1
+            && patchedSettlement.Count(instruction => instruction.Calls(AccessTools.Method(typeof(DungeonContinuity), nameof(DungeonContinuity.ClearVolcano)))) == 1,
+            "Native overnight cleanup must preserve occupied mine and volcano floors.");
 
         // Compile Harmony's actual replacement methods to validate stack balance and patch signatures.
-        foreach (bool enableSunrise in new[] { true, false })
+        Harmony harmony = new("Tom.ICGNS.RuntimeChecks");
+        try
         {
-            Harmony harmony = new($"Tom.ICGNS.RuntimeChecks.{enableSunrise}");
-            try
-            {
-                ModEntry.ApplyPatches(harmony, new ModConfig { EnableSunrise = enableSunrise });
-                HashSet<MethodBase> patched = harmony.GetPatchedMethods().ToHashSet();
-                Check(patched.Count == (enableSunrise ? 13 : 12), "All required patches must install in either lighting mode.");
-                Check(patched.Contains(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock))) == enableSunrise,
-                    "The sunrise lighting patch must only be installed when enabled.");
-                Check(patched.Contains(clock) && patched.Contains(update) && patched.Contains(settlement),
-                    "Disabling sunrise must retain the extended clock, pass-out and shipping patches.");
-                Check(patched.Contains(AccessTools.Method(typeof(Game1), "_draw"))
-                    && patched.Contains(AccessTools.Method(typeof(Game1), nameof(Game1.ShouldDrawOnBuffer))),
-                    "The 6 AM save display must remain available in either lighting mode.");
-            }
-            finally
-            {
-                harmony.UnpatchAll(harmony.Id);
-            }
+            ModEntry.ApplyPatches(harmony);
+            HashSet<MethodBase> patched = harmony.GetPatchedMethods().ToHashSet();
+            Check(patched.Count == 13, "All required patches must install.");
+            Check(patched.Contains(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock))),
+                "The sunrise hook must remain installed for live checkbox changes.");
+            Check(patched.Contains(clock) && patched.Contains(update) && patched.Contains(settlement),
+                "Disabling sunrise must retain the extended clock, pass-out and shipping patches.");
+            Check(patched.Contains(AccessTools.Method(typeof(Game1), "_draw"))
+                && patched.Contains(AccessTools.Method(typeof(Game1), nameof(Game1.ShouldDrawOnBuffer))),
+                "The 6 AM save display must remain available in either lighting mode.");
+        }
+        finally
+        {
+            harmony.UnpatchAll(harmony.Id);
         }
     }
 

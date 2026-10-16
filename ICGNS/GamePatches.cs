@@ -7,6 +7,7 @@ using StardewValley.Inventories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley.Menus;
+using StardewValley.Locations;
 
 namespace ICGNS;
 
@@ -138,7 +139,18 @@ internal static class GamePatches
             instruction.opcode = OpCodes.Call;
             instruction.operand = AccessTools.Method(typeof(GamePatches), nameof(GetSettlementBin));
         }
+        ReplaceCleanup(typeof(MineShaft), nameof(MineShaft.clearActiveMines), nameof(DungeonContinuity.ClearMines));
+        ReplaceCleanup(typeof(VolcanoDungeon), nameof(VolcanoDungeon.ClearAllLevels), nameof(DungeonContinuity.ClearVolcano));
         return code;
+
+        void ReplaceCleanup(Type type, string original, string replacement)
+        {
+            MethodInfo method = AccessTools.Method(type, original);
+            List<CodeInstruction> calls = code.Where(instruction => instruction.Calls(method)).ToList();
+            if (calls.Count != 1)
+                throw new InvalidOperationException($"Unexpected new-day cleanup for {type.Name}: {calls.Count} calls.");
+            calls[0].operand = AccessTools.Method(typeof(DungeonContinuity), replacement);
+        }
     }
 
     internal static int PrepareSettlement(int time)
@@ -196,7 +208,7 @@ internal static class GamePatches
         return false;
     }
 
-    internal static void AfterWakeUp(Farmer who) => MorningState.ApplyPosition(who);
+    internal static bool BeforeWakeUp(Farmer who) => !MorningState.ApplyPosition(who);
 
     private static void ReplaceConstant(List<CodeInstruction> code, int oldValue, int newValue, int expected)
     {

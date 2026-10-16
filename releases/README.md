@@ -36,7 +36,11 @@ Commit the verified `releases/ICGNS-<version>.zip` to `main`. In GitHub Actions,
 
 The workflow validates the ZIP against the tagged source files, attaches it, updates the release title and notes, and then removes any extra custom source ZIP from the release. GitHub's automatic source archives remain available. A different existing mod ZIP is never overwritten.
 
-## Current v1.1.0 package
+## Current v1.2.0 package
+
+`ICGNS-1.2.0.zip` contains the mine rollover fix, optional GMCM sunrise checkbox and localized saving text. It passed 350 checks against the actual Windows game and SMAPI installation, including GPU rendering and the installed GMCM API signatures. The package validator checks the assembly version and packaged documents before publication.
+
+## Existing v1.1.0 package
 
 `ICGNS-1.1.0.zip` is the compiled Windows/SMAPI mod with the `EnableSunrise` setting. It was built from the preserved `v1.1.0` tag with the real game libraries and passed 331 checks, including both configuration modes and GPU rendering. Its packaged documentation and changelog match the tag.
 

@@ -22,8 +22,8 @@ internal sealed class MorningState
     internal static void RememberPosition(Farmer farmer)
     {
         GameLocation location = farmer.currentLocation;
-        // Generated dungeon floors are recreated for the new day. Use the game's normal home fallback there.
-        if (location is MineShaft or VolcanoDungeon || Game1.getLocationFromName(location.NameOrUniqueName) != location)
+        if (location is not MineShaft and not VolcanoDungeon
+            && Game1.getLocationFromNameInLocationsList(location.NameOrUniqueName) != location)
         {
             farmer.modData.Remove(PositionKey);
             return;
@@ -54,17 +54,27 @@ internal sealed class MorningState
         return true;
     }
 
-    internal static void ApplyPosition(Farmer farmer)
+    internal static bool ApplyPosition(Farmer farmer, bool loadingSave = false)
     {
         if (!TryGetPosition(farmer, out string name, out Vector2 position, out int facing))
-            return;
+            return false;
         GameLocation? location = Game1.getLocationFromName(name);
         if (location is null || !Game1.isLocationAccessible(name))
-            return;
+            return false;
+        // Dungeon contents aren't serialized by the game. On a fresh load the
+        // floor is generated again, so its entrance is safer than an old tile.
+        if (loadingSave)
+        {
+            if (location is MineShaft mine)
+                position = mine.mineEntrancePosition(farmer) * 64f;
+            else if (location is VolcanoDungeon { startPosition: { } entrance })
+                position = entrance.ToVector2() * 64f;
+        }
         farmer.currentLocation = location;
         farmer.Position = position;
         farmer.faceDirection(facing);
         if (farmer.IsLocalPlayer)
             Game1.currentLocation = location;
+        return true;
     }
 }

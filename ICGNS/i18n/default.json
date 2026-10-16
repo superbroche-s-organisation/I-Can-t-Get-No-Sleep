@@ -1,5 +1,7 @@
 {
   "dawn": "6AM, a new day begins!",
+  "config.sunrise.name": "Enable sunrise",
+  "config.sunrise.tooltip": "Gradually brighten outdoor lighting from 4AM to 6AM. Uncheck to let another lighting mod handle dawn. Applies immediately.",
   "multiplayer": "Multiplayer: install I Can't Get No Sleep on the host and every player's computer. With shared money, shipping requires all online players to sleep or pass out.",
   "patch-error": "I Can't Get No Sleep couldn't apply its changes to this game version. The mod has been disabled; see the SMAPI log."
 }

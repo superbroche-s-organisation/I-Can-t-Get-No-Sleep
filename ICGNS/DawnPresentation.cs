@@ -64,7 +64,7 @@ internal sealed class DawnPresentation : IDisposable
         try
         {
             Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-            DrawSaveIcon(Game1.spriteBatch, time);
+            DrawSavingText(Game1.spriteBatch, time);
             Game1.spriteBatch.End();
         }
         finally
@@ -114,23 +114,13 @@ internal sealed class DawnPresentation : IDisposable
         batch.End();
     }
 
-    private static void DrawSaveIcon(SpriteBatch batch, GameTime time)
+    private static void DrawSavingText(SpriteBatch batch, GameTime time)
     {
-        const int size = 48;
-        Vector2 position = Utility.makeSafe(new Vector2(24f, Game1.uiViewport.Height - size - 24f), new Vector2(size));
-        int x = (int)position.X;
-        int y = (int)position.Y;
-        float pulse = 0.85f + 0.15f * (float)Math.Sin(time.TotalGameTime.TotalSeconds * 4d);
-        void Block(int dx, int dy, int width, int height, Color color)
-            => batch.Draw(Game1.staminaRect, new Rectangle(x + dx * 4, y + dy * 4, width * 4, height * 4), color * pulse);
-        // A small pixel-art floppy disk; no fullscreen panel or saving text.
-        Block(0, 0, 12, 12, new Color(65, 39, 28));
-        Block(1, 1, 10, 10, new Color(239, 180, 79));
-        Block(3, 1, 6, 4, new Color(239, 235, 202));
-        Block(7, 1, 1, 3, new Color(77, 105, 116));
-        Block(3, 7, 6, 4, new Color(255, 243, 207));
-        Block(4, 8, 4, 1, new Color(142, 102, 65));
-        Block(4, 10, 4, 1, new Color(142, 102, 65));
+        string text = Game1.content.LoadString("Strings\\StringsFromCSFiles:SaveGameMenu.cs.11381")
+            + new string('.', 1 + (int)(time.TotalGameTime.TotalSeconds * 2d) % 3);
+        Vector2 size = Game1.dialogueFont.MeasureString(text);
+        Vector2 position = Utility.makeSafe(new Vector2(24f, Game1.uiViewport.Height - size.Y - 24f), size);
+        Utility.drawTextWithShadow(batch, text, Game1.dialogueFont, position, Color.White);
     }
 
     public void Dispose()
