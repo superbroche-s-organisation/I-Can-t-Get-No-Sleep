@@ -42,16 +42,19 @@ public sealed class ModEntry : Mod
         {
             IntegrateTimeDisplay(harmony);
             ConfigMenuIntegration.Register(helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu"),
-                ModManifest, () => Config, () => Config = new ModConfig(), () => helper.WriteConfig(Config),
-                key => helper.Translation.Get(key).ToString());
+                ModManifest, () => Config, () => { Config = new ModConfig(); GameplaySettings.Publish(Config); },
+                () => { helper.WriteConfig(Config); GameplaySettings.Publish(Config); },
+                key => helper.Translation.Get(key).ToString(), () => GameplaySettings.Publish(Config));
         };
         helper.Events.GameLoop.ReturnedToTitle += (_, _) =>
         {
             foreach (var screen in State.GetActiveValues())
                 screen.Value.Presentation.Dispose();
             State.ResetAllScreens();
+            LateNightPathfinding.Reset();
         };
         helper.Events.Multiplayer.PeerConnected += (_, _) => Monitor.Log(helper.Translation.Get("multiplayer"), LogLevel.Info);
+        helper.Events.Player.Warped += (_, _) => LateNightPathfinding.Reset();
     }
 
     private static HarmonyMethod Patch(string name) => new(typeof(GamePatches), name);
@@ -76,6 +79,9 @@ public sealed class ModEntry : Mod
         harmony.Patch(AccessTools.Method(typeof(Game1), "_draw"), prefix: Patch(nameof(GamePatches.DrawAwakeTransition)));
         harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.ShouldDrawOnBuffer)),
             postfix: Patch(nameof(GamePatches.KeepDawnOnBuffer)));
+        harmony.Patch(AccessTools.Method(typeof(StardewValley.Pathfinding.PathFindController), "findPath"),
+            prefix: new HarmonyMethod(typeof(LateNightPathfinding), nameof(LateNightPathfinding.BeforeFindPath)),
+            postfix: new HarmonyMethod(typeof(LateNightPathfinding), nameof(LateNightPathfinding.AfterFindPath)));
     }
 
     private void OnUpdateTicked(object? sender, UpdateTickedEventArgs e)
@@ -87,16 +93,18 @@ public sealed class ModEntry : Mod
             State.Value.Presentation.Dispose();
             State.Value = new MorningState();
         }
-        if (!Context.IsWorldReady || Game1.timeOfDay < 3000 || Game1.newDay || State.Value.DawnStarted
+        if (!GameplaySettings.Enabled || !Context.IsWorldReady || Game1.timeOfDay < 3000 || Game1.newDay || State.Value.DawnStarted
             || Game1.player.passedOut || Game1.player.timeWentToBed.Value > 0 || Game1.eventUp
             || Game1.locationRequest is not null || Game1.currentMinigame is not null || Game1.killScreen
             || Game1.player.FarmerSprite.isPassingOut())
             return;
 
         Farmer farmer = Game1.player;
+        State.Value.UseShippingScreen = GameplaySettings.SellAt6AM;
         try
         {
-            State.Value.Presentation.Capture(Game1.game1);
+            if (!State.Value.UseShippingScreen)
+                State.Value.Presentation.Capture(Game1.game1);
         }
         catch (Exception exception)
         {
@@ -120,9 +128,26 @@ public sealed class ModEntry : Mod
         farmer.passedOut = true;
         Monitor.Log("6 h : passage au lendemain sans sommeil.", LogLevel.Trace);
         if (Game1.IsMultiplayer)
-            Game1.activeClickableMenu = new ReadyCheckDialog("sleep", allowCancel: false, _ => Game1.NewDay(0f));
+            Game1.activeClickableMenu = new ReadyCheckDialog("sleep", allowCancel: false, _ => BeginAwakeNewDay(State.Value.UseShippingScreen));
         else
+            BeginAwakeNewDay(State.Value.UseShippingScreen);
+    }
+
+    internal static void BeginAwakeNewDay(bool useShippingScreen)
+    {
+        if (!useShippingScreen)
+        {
             Game1.NewDay(0f);
+            return;
+        }
+        // Ask vanilla for the gradual bed fade instead of its instant pass-out
+        // fade. This temporary flag never records sleep or moves the player.
+        Farmer farmer = Game1.player;
+        bool wasInBed = farmer.isInBed.Value;
+        farmer.passedOut = false;
+        farmer.isInBed.Value = true;
+        try { Game1.NewDay(0f); }
+        finally { farmer.isInBed.Value = wasInBed; }
     }
 
     private void OnSaving(object? sender, SavingEventArgs e)
@@ -139,17 +164,22 @@ public sealed class ModEntry : Mod
 
     private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
     {
+        GameplaySettings.Publish(Config);
+        LateNightPathfinding.Reset();
         SaveDataMigration.MigrateFarmerData(Game1.player);
         Game1.player.modData.Remove(SalePolicy.PassOutDayKey);
         if (Context.IsMainPlayer)
             ShippingStorage.RestoreAfterSaveOrLoad();
-        MorningState.ApplyPosition(Game1.player, loadingSave: true);
+        if (GameplaySettings.Enabled)
+            MorningState.ApplyPosition(Game1.player, loadingSave: true);
         if (Context.IsMultiplayer)
             Monitor.Log(Helper.Translation.Get("multiplayer"), LogLevel.Info);
     }
 
     private void OnDayStarted(object? sender, DayStartedEventArgs e)
     {
+        GameplaySettings.Publish(Config);
+        LateNightPathfinding.Reset();
         Game1.player.modData.Remove(SalePolicy.PassOutDayKey);
         if (Context.IsMainPlayer)
             ShippingStorage.RestoreAfterSaveOrLoad();

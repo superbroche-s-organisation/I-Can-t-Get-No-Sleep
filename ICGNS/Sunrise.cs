@@ -23,7 +23,7 @@ internal static class Sunrise
 
     internal static void UpdateLighting(ModConfig config)
     {
-        if (!config.EnableSunrise || Game1.timeOfDay < StartTime || Game1.timeOfDay > EndTime
+        if (!GameplaySettings.Enabled || !config.EnableSunrise || Game1.timeOfDay < StartTime || Game1.timeOfDay > EndTime
             || Game1.currentLocation is not { IsOutdoors: true })
             return;
         int interval = Game1.realMilliSecondsPerGameTenMinutes + Game1.currentLocation.ExtraMillisecondsPerInGameMinute * 10;

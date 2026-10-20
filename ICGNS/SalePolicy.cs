@@ -7,6 +7,9 @@ internal static class SalePolicy
 {
     internal const string PassOutDayKey = SaveDataMigration.CurrentId + "/PassOutDay";
 
+    internal static bool SellsAtDawn(bool enabled, bool sellAt6AM, int time)
+        => enabled && sellAt6AM && time >= 3000;
+
     internal static bool HasSlept(Farmer farmer, int day)
     {
         // The native passedOut flag also drives our awake 6 AM fade, and is reset before settlement.

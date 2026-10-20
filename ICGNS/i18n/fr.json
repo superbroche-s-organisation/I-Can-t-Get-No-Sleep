@@ -1,7 +1,11 @@
 {
   "dawn": "6 h, une nouvelle journée commence !",
+  "config.enabled.name": "Activer le mod",
+  "config.enabled.tooltip": "Décochez pour rétablir l'évanouissement à 2 h, les avertissements de l'horloge et la vente habituelle. Une transition déjà commencée se termine d'abord. En multijoueur, ce réglage est contrôlé par l'hôte.",
   "config.sunrise.name": "Activer le lever du soleil",
   "config.sunrise.tooltip": "Éclaircit progressivement l'extérieur entre 4 h et 6 h. Décochez pour laisser un autre mod gérer l'aube. Effet immédiat.",
-  "multiplayer": "Multijoueur : installez I Can't Get No Sleep chez l'hôte et chaque joueur. Avec une caisse commune, la vente nécessite que tous les joueurs présents dorment ou s'évanouissent.",
+  "config.shipping.name": "Vendre le bac d'expédition à 6 h",
+  "config.shipping.tooltip": "Vend les objets même en restant éveillé jusqu'à 6 h. Fondu normal, bilan des ventes et sauvegarde, puis retour à votre position. Désactivé par défaut. En multijoueur, l'hôte contrôle ce réglage ; les bacs personnels des joueurs déconnectés sont conservés.",
+  "multiplayer": "Multijoueur : installez I Can't Get No Sleep chez l'hôte et chaque joueur. L'hôte contrôle l'activation du mod et la vente à 6 h. Par défaut, la vente du bac commun nécessite que tous les joueurs présents dorment ou s'évanouissent.",
   "patch-error": "I Can't Get No Sleep n'a pas pu appliquer ses changements à cette version du jeu. Le mod est désactivé ; consultez le journal SMAPI."
 }

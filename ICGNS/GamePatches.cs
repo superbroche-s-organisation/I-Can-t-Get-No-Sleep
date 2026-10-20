@@ -25,8 +25,8 @@ internal static class GamePatches
     internal static IEnumerable<CodeInstruction> ExtendClock(IEnumerable<CodeInstruction> instructions)
     {
         List<CodeInstruction> code = instructions.ToList();
-        ReplaceConstant(code, 2600, 3000, 2); // Clamp and tool/horse cleanup move from 2 AM to 6 AM.
-        ReplaceConstant(code, 2800, int.MaxValue, 1); // Remove the game's separate 4 AM emergency pass-out.
+        ReplaceConstant(code, 2600, nameof(ClockLimit), 2);
+        ReplaceConstant(code, 2800, nameof(EmergencyPassOutTime), 1);
         MethodInfo emote = AccessTools.Method(typeof(Farmer), nameof(Farmer.doEmote), new[] { typeof(int) });
         List<CodeInstruction> emotes = code.Where(instruction => instruction.Calls(emote)).ToList();
         if (emotes.Count != 2)
@@ -44,8 +44,8 @@ internal static class GamePatches
         {
             if (code[i].StoresField(shake) && code[i - 1].LoadsConstant(2000))
             {
-                code[i - 1].opcode = OpCodes.Ldc_I4_0;
-                code[i - 1].operand = null;
+                code[i - 1].opcode = OpCodes.Call;
+                code[i - 1].operand = AccessTools.Method(typeof(GamePatches), nameof(ClockShakeDuration));
                 shakeCount++;
             }
             if (code[i].Calls(message) && code[i - 2].operand as string == "Strings\\StringsFromCSFiles:Game1.cs.2652")
@@ -62,11 +62,20 @@ internal static class GamePatches
 
     internal static void QuietClockEmote(Farmer farmer, int emote)
     {
-        if (emote != 24)
+        if (!GameplaySettings.Enabled || emote != 24)
             farmer.doEmote(emote);
     }
 
-    internal static void QuietBedtimeWarning(string message) { }
+    internal static void QuietBedtimeWarning(string message)
+    {
+        if (!GameplaySettings.Enabled)
+            Game1.showGlobalMessage(message);
+    }
+
+    internal static int ClockLimit() => GameplaySettings.Enabled ? 3000 : 2600;
+    internal static int EmergencyPassOutTime() => GameplaySettings.Enabled ? int.MaxValue : 2800;
+    internal static int TimedPassOutTime() => GameplaySettings.Enabled ? int.MaxValue : 2600;
+    internal static int ClockShakeDuration() => GameplaySettings.Enabled ? 0 : 2000;
 
     internal static IEnumerable<CodeInstruction> NormalClockColor(IEnumerable<CodeInstruction> instructions)
     {
@@ -79,44 +88,51 @@ internal static class GamePatches
         return code;
     }
 
-    internal static Color GetClockColor() => Game1.textColor;
+    internal static Color GetClockColor() => GameplaySettings.Enabled ? Game1.textColor : Color.Red;
 
-    internal static void BeforeClockDraw(DayTimeMoneyBox __instance) => __instance.timeShakeTimer = 0;
+    internal static void BeforeClockDraw(DayTimeMoneyBox __instance)
+    {
+        if (GameplaySettings.Enabled)
+            __instance.timeShakeTimer = 0;
+    }
 
     internal static void KeepDawnOnBuffer(ref bool __result)
     {
         // At 100% zoom vanilla draws directly to the backbuffer and leaves screen
         // stale. Render dawn to screen too so its capture always contains the scene.
-        if (Game1.timeOfDay >= Sunrise.StartTime || ModEntry.Instance.State.Value.DawnStarted)
+        if (GameplaySettings.Enabled && NeedsSceneBuffer(Game1.timeOfDay, GameplaySettings.SellAt6AM, ModEntry.Instance.State.Value))
             __result = true;
     }
+
+    internal static bool NeedsSceneBuffer(int time, bool sellAt6AM, MorningState state)
+        => state.DawnStarted ? !state.UseShippingScreen : !sellAt6AM && time is >= 2950 and <= 3000;
 
     internal static bool DrawAwakeTransition(Game1 __instance, GameTime gameTime, RenderTarget2D target_screen)
     {
         MorningState state = ModEntry.Instance.State.Value;
         // Native overnight events keep their own rendering and input; ordinary days use the saved scene.
-        return !state.DawnStarted || Game1.farmEvent is not null || Game1.eventUp
+        return !state.DawnStarted || state.UseShippingScreen || Game1.farmEvent is not null || Game1.eventUp
             || !state.Presentation.Draw(__instance, gameTime, target_screen);
     }
 
     internal static IEnumerable<CodeInstruction> RemoveTimedPassOut(IEnumerable<CodeInstruction> instructions)
     {
         List<CodeInstruction> code = instructions.ToList();
-        ReplaceConstant(code, 2600, int.MaxValue, 1); // Leave the independent stamina check intact.
+        ReplaceConstant(code, 2600, nameof(TimedPassOutTime), 1); // Leave the independent stamina check intact.
         return code;
     }
 
     internal static IEnumerable<CodeInstruction> KeepCombatDefeat(IEnumerable<CodeInstruction> instructions)
     {
         List<CodeInstruction> code = instructions.ToList();
-        ReplaceConstant(code, 2600, int.MaxValue, 1); // Combat defeat must still work during the extended night.
+        ReplaceConstant(code, 2600, nameof(TimedPassOutTime), 1); // Combat defeat must still work during the extended night.
         return code;
     }
 
     internal static IEnumerable<CodeInstruction> KeepPondFishing(IEnumerable<CodeInstruction> instructions)
     {
         List<CodeInstruction> code = instructions.ToList();
-        ReplaceConstant(code, 2600, int.MaxValue, 1);
+        ReplaceConstant(code, 2600, nameof(TimedPassOutTime), 1);
         return code;
     }
 
@@ -156,23 +172,25 @@ internal static class GamePatches
     internal static int PrepareSettlement(int time)
     {
         MorningState state = ModEntry.Instance.State.Value;
-        state.SettlementPrepared = true;
+        state.SettlementPrepared = GameplaySettings.Enabled;
         state.SeparateWallets = Game1.player.team.useSeparateWallets.Value;
         state.Sleeping.Clear();
         foreach (Farmer farmer in Game1.getOnlineFarmers().Where(farmer => !farmer.IsDedicatedPlayer))
-            state.Sleeping[farmer.UniqueMultiplayerID] = SalePolicy.HasSlept(farmer, Game1.Date.TotalDays);
+            state.Sleeping[farmer.UniqueMultiplayerID] = SalePolicy.HasSlept(farmer, Game1.Date.TotalDays)
+                || SalePolicy.SellsAtDawn(GameplaySettings.Enabled, GameplaySettings.SellAt6AM, time);
 
         // Remove a previous morning marker when this player really chooses to sleep.
         if (!state.DawnStarted)
             Game1.player.modData.Remove(MorningState.PositionKey);
 
         // Vanilla assumes nights end by 2 AM. After that time, don't grant extra phantom processing hours.
-        return time > 2600 ? Math.Max(0, 30 * 60 - Utility.ConvertTimeToMinutes(time)) : Utility.CalculateMinutesUntilMorning(time);
+        return GameplaySettings.Enabled && time > 2600
+            ? Math.Max(0, 30 * 60 - Utility.ConvertTimeToMinutes(time)) : Utility.CalculateMinutesUntilMorning(time);
     }
 
     internal static void RecordPassOut(Farmer who)
     {
-        if (who.IsLocalPlayer)
+        if (GameplaySettings.Enabled && who.IsLocalPlayer)
             who.modData[SalePolicy.PassOutDayKey] = Game1.Date.TotalDays.ToString(CultureInfo.InvariantCulture);
     }
 
@@ -202,23 +220,23 @@ internal static class GamePatches
 
     internal static bool AllowAwakeLocation(GameLocation __instance, Farmer who, ref bool __result)
     {
-        if (!MorningState.TryGetPosition(who, out string name, out _, out _) || name != __instance.NameOrUniqueName)
+        if (!GameplaySettings.Enabled || !MorningState.TryGetPosition(who, out string name, out _, out _) || name != __instance.NameOrUniqueName)
             return true;
         __result = true;
         return false;
     }
 
-    internal static bool BeforeWakeUp(Farmer who) => !MorningState.ApplyPosition(who);
+    internal static bool BeforeWakeUp(Farmer who) => !GameplaySettings.Enabled || !MorningState.ApplyPosition(who);
 
-    private static void ReplaceConstant(List<CodeInstruction> code, int oldValue, int newValue, int expected)
+    private static void ReplaceConstant(List<CodeInstruction> code, int oldValue, string getter, int expected)
     {
         List<CodeInstruction> matches = code.Where(instruction => instruction.LoadsConstant(oldValue)).ToList();
         if (matches.Count != expected)
             throw new InvalidOperationException($"Expected {expected} clock constants {oldValue}, found {matches.Count}.");
         foreach (CodeInstruction instruction in matches)
         {
-            instruction.opcode = OpCodes.Ldc_I4;
-            instruction.operand = newValue;
+            instruction.opcode = OpCodes.Call;
+            instruction.operand = AccessTools.Method(typeof(GamePatches), getter);
         }
     }
 }

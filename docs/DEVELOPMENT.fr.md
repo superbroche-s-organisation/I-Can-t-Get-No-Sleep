@@ -8,13 +8,16 @@ L'horloge garde sa couleur normale aux heures tardives et les bulles de fatigue 
 
 Lors d'une transition ordinaire à 6 h avec ICGNS, la scène reste affichée avec la phrase de sauvegarde du jeu en bas à gauche pendant le traitement du lendemain. Elle se fige brièvement, puis reprend sans écran noir. Le message indique simplement « 6AM, a new day begins! » (ou sa traduction française). Les événements nocturnes spéciaux et les choix de professions conservent leur fonctionnement et leurs écrans nécessaires.
 
+L'option facultative **Vendre le bac d'expédition à 6 h** change cette présentation : fondu noir normal, bilan des ventes lorsqu'il y a des objets, sauvegarde, puis fondu vers le jeu avec retour à la position conservée. Elle est désactivée par défaut. Elle ne fait pas récupérer d'énergie ou de santé et ne facture pas de sauvetage.
+
 ## Comportement
 
 | Situation | Contenu du bac d'expédition |
 | --- | --- |
-| Éveillé jusqu'à 6 h avec ICGNS | Conservé, sans versement d'argent |
+| Éveillé jusqu'à 6 h avec les réglages par défaut | Conservé, sans versement d'argent |
+| Éveillé jusqu'à 6 h avec la vente à 6 h activée | Vendu normalement, avec bilan et fondus natifs |
 | Sommeil accepté dans un lit ou une tente | Vendu normalement |
-| Plusieurs jours successifs sans dormir | Conservé jusqu'au prochain sommeil ou évanouissement |
+| Plusieurs jours successifs sans dormir, vente à 6 h désactivée | Conservé jusqu'au prochain sommeil ou évanouissement |
 | Sauvegarde puis rechargement | Les objets invendus sont remis dans le bac |
 | Évanouissement par épuisement | Vendu normalement lors du passage au lendemain |
 
@@ -27,7 +30,7 @@ Les mini-bacs sont pris en compte : leur contenu invendu est transféré dans le
 ## Installation
 
 1. Fermez Stardew Valley.
-2. Après compilation, ouvrez `artifacts/ICGNS-1.2.0.zip` et extrayez le dossier **ICGNS** dans le dossier `Mods` du jeu (remplacez les fichiers d'une version précédente).
+2. Après compilation, ouvrez `artifacts/ICGNS-1.3.0.zip` et extrayez le dossier **ICGNS** dans le dossier `Mods` du jeu (remplacez les fichiers d'une version précédente et conservez votre `config.json`).
 3. Relancez le jeu avec SMAPI.
 
 Le dossier installé doit contenir :
@@ -39,19 +42,29 @@ Mods\ICGNS\ICGNS.dll
 
 Aucun réglage n'est nécessaire. Le projet produit le ZIP dans son propre dossier ; la compilation ne modifie pas l'installation du jeu. Le paquet Nexus contient un guide d'installation en anglais.
 
-### Configuration de l'aube
+### Configuration
 
-Avec **Generic Mod Config Menu**, ouvrez les options des mods, sélectionnez **I Can't Get No Sleep** et cochez ou décochez **Activer le lever du soleil**. Le réglage s'applique immédiatement ; utilisez **Sauvegarder** pour le conserver. GMCM reste facultatif.
+Avec **Generic Mod Config Menu**, ouvrez les options des mods et sélectionnez **I Can't Get No Sleep**. Trois cases apparaissent dans cet ordre :
 
-Pour laisser **Dynamic Dawn/Dusk**, **Golden Hours** ou un autre mod gérer la lumière du matin, lancez une fois le jeu avec ICGNS puis fermez-le. Dans `Mods/ICGNS/config.json`, définissez :
+| Option | Défaut | Effet |
+| --- | --- | --- |
+| Activer le mod | Activé | En tête de page. Décocher rétablit l'évanouissement à 2 h, les avertissements de l'horloge et la vente normale. Une sauvegarde déjà commencée se termine d'abord. |
+| Activer le lever du soleil | Activé | Éclairage progressif entre 4 h et 6 h. |
+| Vendre le bac d'expédition à 6 h | Désactivé | Vente, bilan et fondus natifs à 6 h, puis retour à la position conservée. |
+
+Les changements s'appliquent sans redémarrer ; utilisez **Sauvegarder** pour les conserver. GMCM reste facultatif. En multijoueur, l'hôte décide de l'activation du mod et de la vente à 6 h ; le lever du soleil reste propre à chaque joueur. Les préférences de gameplay d'un invité s'appliquent à ses propres parties.
+
+Sans GMCM, lancez une fois le jeu avec ICGNS puis fermez-le. Les réglages par défaut de `Mods/ICGNS/config.json` sont :
 
 ```json
 {
-  "EnableSunrise": false
+  "EnableMod": true,
+  "EnableSunrise": true,
+  "SellAt6AM": false
 }
 ```
 
-Relancez le jeu après une modification manuelle du JSON. La valeur par défaut, `true`, conserve l'aube progressive d'ICGNS entre 4 h et 6 h. Avec `false`, le mod laisse la lumière intacte. Le passage au lendemain à 6 h, la sauvegarde automatique, son texte et les règles d'expédition restent actifs. Ce réglage visuel est propre à chaque joueur.
+Relancez le jeu après une modification manuelle du JSON. Pour laisser **Dynamic Dawn/Dusk**, **Golden Hours** ou un autre mod gérer l'aube, passez `EnableSunrise` à `false`. Le passage au lendemain à 6 h, la sauvegarde et les règles d'expédition restent actifs. `EnableMod: false` rétablit le comportement natif ; les objets invendus stockés par ICGNS sont tout de même récupérés sans perte.
 
 Pour passer d'une version de test à ICGNS, fermez le jeu et retirez le dossier de la version de test avant d'installer le nouveau dossier **ICGNS**. Les deux versions ne doivent pas être chargées ensemble. Les objets conservés et les marqueurs de position de la version de test sont repris automatiquement avec l'identifiant **Tom.ICGNS** au chargement.
 
@@ -63,8 +76,15 @@ Installez la même version chez l'hôte **et chez chaque joueur**, y compris en 
 - **Argent séparé** : chaque joueur vend s'il a accepté de dormir ou s'est évanoui. Les objets des joueurs éveillés ou déconnectés sont conservés.
 - Le lendemain commence lorsque tous les joueurs ont dormi, se sont évanouis ou atteint 6 h. Les dialogues de disponibilité et la sauvegarde utilisent la synchronisation native du jeu.
 - Annuler son choix de dormir rétablit le statut « éveillé ».
+- L'hôte contrôle `EnableMod` et `SellAt6AM`, avec synchronisation par les données natives du joueur hôte. Lorsque la vente à 6 h est activée, les bacs des joueurs connectés sont vendus à 6 h même sans sommeil. Les bacs personnels des joueurs déconnectés restent conservés.
 
 Le support multijoueur est implémenté ; une session réelle à plusieurs reste à vérifier. Le mod respecte les pauses et la vitesse du temps du jeu. L'affichage de l'horloge d'**ItsStardewTime** est aussi adapté pour retirer sa couleur rouge tardive ; son contrôle de vitesse reste actif.
+
+### Saccades après 2 h
+
+La protection ajoutée en 1.3.0 limite à une tentative par seconde les recherches natives de chemin identiques ayant échoué pour un PNJ ou animal entre 2 h et 6 h. Un changement de carte, de position, de destination, de limite de recherche, de date ou d'heure invalide l'échec mémorisé. Un changement de lieu, une nouvelle journée ou le retour au titre vident ce cache. Les trajets réussis, les monstres, les algorithmes à destination personnalisée, les événements et les recherches en journée restent inchangés. Le délai maximal avant de retenter après disparition d'un obstacle est d'une seconde.
+
+Le rendu supplémentaire nécessaire à la sauvegarde discrète est limité au dernier intervalle avant 6 h et n'est pas demandé avec la vente native. Le test synthétique utilise le véritable pathfinder du jeu pour vérifier qu'une série de demandes bloquées ne relance pas la recherche complète à chaque fois. Sans journal, lieu ou liste de mods du joueur concerné, la cause exacte des saccades signalées reste non confirmée ; ce sont des mesures ciblées à faire retester dans sa partie.
 
 ## Compilation et vérifications
 
@@ -95,6 +115,8 @@ La version **1.0.0** uniformise le nom **I Can't Get No Sleep**, le dossier/DLL 
 La version **1.1.0** ajoute le réglage `EnableSunrise`, qui permet de laisser un autre mod gérer l'éclairage de l'aube. Le ZIP à installer ou à publier sur Nexus Mods doit être compilé avec les DLL du jeu et de SMAPI ; l'archive des sources n'est pas un paquet de mod installable.
 
 La version **1.2.0** corrige le retour à la maison depuis les donjons à 6 h, ajoute la case du lever du soleil dans GMCM et remplace l'icône par la phrase de sauvegarde traduite par le jeu.
+
+La version **1.3.0** ajoute l'interrupteur principal en tête du menu, la vente facultative à 6 h avec les écrans et fondus natifs, la synchronisation des deux réglages de gameplay de l'hôte et les protections de performance nocturne. Les vérifications couvrent aussi les valeurs par défaut, l'ordre des cases, la désactivation en cours de transition, le choix du fondu, les inventaires de vente réels et les recherches de chemin bloquées.
 
 ## Compatibilité et désinstallation
 

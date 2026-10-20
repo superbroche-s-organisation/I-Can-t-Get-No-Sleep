@@ -10,6 +10,7 @@ internal sealed class MorningState
     internal const string PositionKey = SaveDataMigration.CurrentId + "/AwakeMorning";
 
     internal bool DawnStarted { get; set; }
+    internal bool UseShippingScreen { get; set; }
     internal bool DayHasStarted { get; set; }
     internal bool SettlementPrepared { get; set; }
     internal bool SeparateWallets { get; set; }

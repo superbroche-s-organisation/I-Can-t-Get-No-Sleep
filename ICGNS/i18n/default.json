@@ -1,7 +1,11 @@
 {
   "dawn": "6AM, a new day begins!",
+  "config.enabled.name": "Enable mod",
+  "config.enabled.tooltip": "Uncheck to restore normal 2AM pass-out, clock warnings and shipping. An ongoing day transition finishes first. In multiplayer, the host controls this setting.",
   "config.sunrise.name": "Enable sunrise",
   "config.sunrise.tooltip": "Gradually brighten outdoor lighting from 4AM to 6AM. Uncheck to let another lighting mod handle dawn. Applies immediately.",
-  "multiplayer": "Multiplayer: install I Can't Get No Sleep on the host and every player's computer. With shared money, shipping requires all online players to sleep or pass out.",
+  "config.shipping.name": "Sell shipping bin at 6AM",
+  "config.shipping.tooltip": "Sell items even when staying awake until 6AM. Uses the normal fade, shipping summary and save, then returns to your position. Off by default. The host controls this setting in multiplayer; disconnected players' personal bins are retained.",
+  "multiplayer": "Multiplayer: install I Can't Get No Sleep on the host and every player's computer. The host controls mod activation and 6AM shipping. By default, shared shipping requires all online players to sleep or pass out.",
   "patch-error": "I Can't Get No Sleep couldn't apply its changes to this game version. The mod has been disabled; see the SMAPI log."
 }

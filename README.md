@@ -4,11 +4,11 @@
 
 A Stardew Valley mod that lets you keep playing after 2AM. At 6AM, a new day begins and the game saves automatically.
 
-Shipping-bin items are sold when you sleep or pass out from exhaustion. If you stay awake until 6AM, the items remain in the bin, including after saving and reloading.
+By default, shipping-bin items are sold when you sleep or pass out from exhaustion. If you stay awake until 6AM, they remain in the bin, including after saving and reloading. An optional setting enables normal shipping and the sales screen at 6AM instead.
 
 ## Download and install
 
-Download **[ICGNS-1.2.0.zip](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/download/v1.2.0/ICGNS-1.2.0.zip)** from the [v1.2.0 release](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/tag/v1.2.0), or use the [ZIP included in this repository](releases/ICGNS-1.2.0.zip?raw=true). This is the compiled mod for installation and Nexus Mods uploads, including the mine fix, sunrise checkbox and saving text.
+Download **[ICGNS-1.3.0.zip](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/download/v1.3.0/ICGNS-1.3.0.zip)** from the [v1.3.0 release](https://github.com/superbroche-s-organisation/I-Can-t-Get-No-Sleep/releases/tag/v1.3.0), or use the [ZIP included in this repository](releases/ICGNS-1.3.0.zip?raw=true). This is the compiled mod for installation and Nexus Mods uploads.
 
 GitHub also provides automatic **Source code (zip)** and **Source code (tar.gz)** downloads for development.
 
@@ -22,26 +22,37 @@ For an update from a private test build, close the game and remove its old mod f
 
 ## Configuration
 
-With **Generic Mod Config Menu** installed, open its mod options, select **I Can't Get No Sleep**, and check or uncheck **Enable sunrise**. The change takes effect immediately; select **Save** to keep it. GMCM is optional.
+With **Generic Mod Config Menu** installed, open its mod options and select **I Can't Get No Sleep**. The options appear in this order:
+
+| Option | Default | Behavior |
+| --- | --- | --- |
+| Enable mod | On | Turn off to restore normal 2AM pass-out, clock warnings and shipping. An ongoing save finishes first. |
+| Enable sunrise | On | Gradually brighten outdoors from 4AM to 6AM. Turn off to use another lighting mod. |
+| Sell shipping bin at 6AM | Off | Sell even when staying awake: normal fade, shipping summary/save, then fade back to your position. Empty bins use the normal save screen. |
+
+Changes apply without restarting; select **Save** to keep them. GMCM is optional. In multiplayer, the host controls **Enable mod** and **Sell shipping bin at 6AM**; sunrise is personal. Farmhand gameplay preferences apply in their own saves.
 
 To let **Dynamic Dawn/Dusk**, **Golden Hours**, or another lighting mod control sunrise, uncheck this option. Without GMCM, launch the game once with ICGNS, close it, then edit `Mods/ICGNS/config.json`:
 
 ```json
 {
-  "EnableSunrise": false
+  "EnableMod": true,
+  "EnableSunrise": true,
+  "SellAt6AM": false
 }
 ```
 
-When editing the JSON file manually, restart the game to load it. `EnableSunrise` defaults to `true`, which keeps ICGNS's gradual lighting from 4AM to 6AM. Setting it to `false` disables only that lighting effect; the new day, automatic save, saving text, and shipping rules remain active at 6AM. Each player can choose this visual setting independently.
+The JSON above shows the defaults. Restart after editing it manually. Set `EnableSunrise` to `false` to let another mod handle lighting; this leaves the 6AM day change and shipping rules active. Setting `EnableMod` to `false` restores vanilla gameplay; retained shipping items are still recovered safely.
 
 ## Features
 
 - Keep playing past 2AM, with the next day starting and saving at 6AM.
-- Retain shipping-bin items until you sleep or pass out from exhaustion.
+- By default, retain shipping-bin items until you sleep or pass out from exhaustion.
+- Optionally sell at 6AM with the normal sales screen and fades, while keeping your position.
 - Gradual outdoor sunrise from 4AM to 6AM, respecting clock speed and pauses.
 - Stay on the same Mines, Skull Cavern or Volcano Dungeon floor at 6AM, with your position and the floor's contents preserved.
 - Visible scene with localized saving text in the bottom-left during ordinary 6AM transitions; the scene briefly freezes while saving.
-- Optional Generic Mod Config Menu checkbox to enable or disable sunrise without restarting.
+- Optional Generic Mod Config Menu checkboxes for the mod, sunrise and dawn shipping.
 - Normal late-hour clock colors, without shaking or hourly fatigue bubbles.
 - Short morning notification: "6AM, a new day begins!"
 - English and French messages.
@@ -52,7 +63,13 @@ Generated dungeon floors are kept during the current session. Quitting and reloa
 
 ## Multiplayer
 
-Install the same version on the host and every player's computer, including split-screen players. With shared money, shipping requires all online players to sleep or pass out. With separate wallets, each player's shipping follows their own sleep status. A complete live multiplayer session still needs verification.
+Install the same version on the host and every player's computer, including split-screen players. The host controls the mod switch and dawn shipping. With default settings and shared money, shipping requires all online players to sleep or pass out; separate wallets follow each player's sleep status. Enabling dawn shipping sells online players' bins at 6AM even if they stayed awake; disconnected players' personal bins remain retained. A complete live multiplayer session still needs verification.
+
+## Late-night performance
+
+During extended nights, identical failed standard NPC/animal path searches retry at most once per second; successful paths, combat AI and custom endpoint algorithms are untouched. The quiet save also uses less forced world-buffer rendering. A synthetic test exercises the installed game's pathfinder to verify that repeated identical failures avoid repeated full searches.
+
+The reported stutter after 2AM could not be reproduced without the affected player's log, location or mod list. These are targeted mitigations; that player's case still needs confirmation.
 
 ## Build from source
 

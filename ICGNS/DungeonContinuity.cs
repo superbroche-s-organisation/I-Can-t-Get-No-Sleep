@@ -13,6 +13,11 @@ internal static class DungeonContinuity
 
     internal static void ClearUnoccupied<T>(List<T> floors, IEnumerable<Farmer> farmers, Action clear) where T : GameLocation
     {
+        if (!GameplaySettings.Enabled)
+        {
+            clear();
+            return;
+        }
         // These markers are synchronized before the native new-day barrier.
         // Protect every awake player's floor, including remote farmhands.
         HashSet<string> occupied = new(StringComparer.Ordinal);

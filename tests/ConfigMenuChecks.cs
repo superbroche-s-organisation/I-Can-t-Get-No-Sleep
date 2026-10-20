@@ -12,15 +12,27 @@ internal static class ConfigMenuChecks
     {
         ModConfig config = new();
         bool saved = false;
+        int changed = 0;
         ConfigMenuIntegration.Register(null, null!, () => config, () => config = new(), () => saved = true, key => key);
         check(!saved && config.EnableSunrise, "GMCM must remain optional.");
         FakeApi api = new();
-        ConfigMenuIntegration.Register(api, null!, () => config, () => config = new(), () => saved = true, key => "translated " + key);
-        check(!api.TitleScreenOnly && api.Get!(), "The sunrise checkbox must be available in game and start checked.");
-        check(api.FieldId == "EnableSunrise" && api.Name!() == "translated config.sunrise.name"
-            && api.Tooltip!() == "translated config.sunrise.tooltip", "The option must have its stable ID and translated label/tooltip.");
-        api.Set!(false);
-        check(!config.EnableSunrise && !api.Get!(), "Unchecking the option must change the active config immediately.");
+        ConfigMenuIntegration.Register(api, null!, () => config, () => config = new(), () => saved = true,
+            key => "translated " + key, () => changed++);
+        check(!api.TitleScreenOnly && api.Options.Select(option => option.Id).SequenceEqual(new[] { "EnableMod", "EnableSunrise", "SellAt6AM" }),
+            "The master toggle must be first, followed by sunrise and dawn shipping, available in game.");
+        var enabled = api.Options[0];
+        var sunrise = api.Options[1];
+        var shipping = api.Options[2];
+        check(enabled.Get() && sunrise.Get() && !shipping.Get(), "The menu must default to mod on, sunrise on, shipping off.");
+        foreach (var option in api.Options)
+            check(option.Name().StartsWith("translated config.") && option.Tooltip().StartsWith("translated config."),
+                "Every checkbox must use translated names and tooltips.");
+        enabled.Set(false);
+        shipping.Set(true);
+        check(!config.EnableMod && config.SellAt6AM && changed == 2, "Gameplay changes must update config and publish host settings.");
+        enabled.Set(true);
+        sunrise.Set(false);
+        check(!config.EnableSunrise && !sunrise.Get(), "Unchecking sunrise must change the active config immediately.");
         int originalTime = Game1.timeOfDay;
         Color originalLight = Game1.outdoorLight;
         try
@@ -38,9 +50,10 @@ internal static class ConfigMenuChecks
         api.Save!();
         check(saved, "GMCM Save must invoke configuration persistence.");
         api.Reset!();
-        check(config.EnableSunrise && api.Get!(), "Reset must update callbacks to the replacement config instance.");
-        api.Set!(false);
-        check(!config.EnableSunrise, "The checkbox must still edit the live config after Reset.");
+        check(config.EnableMod && sunrise.Get() && !shipping.Get(), "Reset must restore defaults through the replacement config instance.");
+        sunrise.Set(false);
+        shipping.Set(true);
+        check(!config.EnableSunrise && config.SellAt6AM, "All callbacks must still edit the live config after Reset.");
 
         string path = Path.Combine(gamePath, "Mods", "GenericModConfigMenu", "GenericModConfigMenu.dll");
         if (!File.Exists(path))
@@ -54,13 +67,12 @@ internal static class ConfigMenuChecks
         }
     }
 
+    private sealed record Option(Func<bool> Get, Action<bool> Set, Func<string> Name, Func<string> Tooltip, string Id);
+
     private sealed class FakeApi : IGenericModConfigMenuApi
     {
         internal Action? Reset, Save;
-        internal Func<bool>? Get;
-        internal Action<bool>? Set;
-        internal Func<string>? Name, Tooltip;
-        internal string? FieldId;
+        internal List<Option> Options = new();
         internal bool TitleScreenOnly;
 
         public void Register(IManifest mod, Action reset, Action save, bool titleScreenOnly = false)
@@ -68,6 +80,6 @@ internal static class ConfigMenuChecks
 
         public void AddBoolOption(IManifest mod, Func<bool> getValue, Action<bool> setValue,
             Func<string> name, Func<string>? tooltip = null, string? fieldId = null)
-            => (Get, Set, Name, Tooltip, FieldId) = (getValue, setValue, name, tooltip, fieldId);
+            => Options.Add(new Option(getValue, setValue, name, tooltip!, fieldId!));
     }
 }

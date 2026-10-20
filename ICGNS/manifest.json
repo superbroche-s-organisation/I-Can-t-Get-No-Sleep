@@ -1,8 +1,8 @@
 {
   "Name": "I Can't Get No Sleep",
   "Author": "Tom",
-  "Version": "1.2.0",
-  "Description": "Stay awake until 6AM. A new day begins and saves automatically. Shipping items are sold only when you sleep or pass out.",
+  "Version": "1.3.0",
+  "Description": "Stay awake until 6AM with automatic new-day saving, optional dawn shipping and configurable sunrise.",
   "UniqueID": "Tom.ICGNS",
   "EntryDll": "ICGNS.dll",
   "MinimumApiVersion": "4.5.2",

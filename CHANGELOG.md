@@ -2,6 +2,24 @@
 
 Changes are listed from newest to oldest. Earlier versions were private development builds.
 
+## 1.3.0 — 2026-10-20
+
+### Added
+
+- Added **Enable mod** as the first GMCM checkbox (`EnableMod`, default `true`). Turning it off restores the normal clock, late-hour warnings, timed pass-out and shipping behavior. An already-started day transition finishes safely first.
+- Added **Sell shipping bin at 6AM** (`SellAt6AM`, default `false`). When enabled, staying awake until 6AM sells the bin through the native settlement, fades to the normal shipping summary and save, then fades back to your preserved position. Empty bins use the normal save screen.
+- In multiplayer, the host controls these two gameplay settings; sunrise remains a personal visual preference. Disconnected players' personal shipping bins remain retained.
+
+### Performance
+
+- Added a narrowly scoped retry limit for identical failed standard NPC/animal path searches between 2AM and 6AM. Failed requests retry after at most one second and invalidate when the map, actor tile, destination, search limit, date or clock changes. Successful paths, combat AI, custom endpoint algorithms, events and daytime searches keep native behavior.
+- Reduced forced world-buffer rendering to the final pre-dawn interval needed by the quiet save. Native shipping transitions don't request this extra buffer.
+- The reported location-dependent stutter could not be reproduced from the report alone; these changes address avoidable late-night work, without claiming its exact cause is confirmed.
+
+### Validation
+
+- Added regression checks against the real game's pathfinder, runtime enable/disable behavior, shipping eligibility/inventory filtering, native fade selection, GMCM option order and defaults, and rendering selection.
+
 ## 1.2.0 — 2026-10-16
 
 ### Fixed

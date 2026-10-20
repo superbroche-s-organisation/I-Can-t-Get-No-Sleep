@@ -27,6 +27,8 @@ internal static class RuntimeChecks
         ActualGamePatches();
         DungeonChecks.Run(Check);
         ConfigMenuChecks.Run(gamePath, Check);
+        GameplayChecks.Run(Check);
+        PathfindingChecks.Run(Check);
         ItemRetention();
         TeamInventoryPersistence();
         SunriseContinuity();
@@ -43,6 +45,8 @@ internal static class RuntimeChecks
             "An absent sunrise setting must preserve the existing lighting behavior.");
         Check(!JsonSerializer.Deserialize<ModConfig>("{\"EnableSunrise\":false}")!.EnableSunrise,
             "The config must allow other lighting mods to take over sunrise.");
+        ModConfig defaults = JsonSerializer.Deserialize<ModConfig>("{}")!;
+        Check(defaults.EnableMod && !defaults.SellAt6AM, "The mod must default on and dawn shipping off for existing configs.");
     }
 
     private static void ShippingRules()
@@ -93,7 +97,8 @@ internal static class RuntimeChecks
     {
         MethodInfo clock = GamePatches.FindClockBody();
         List<CodeInstruction> patchedClock = GamePatches.ExtendClock(PatchProcessor.GetOriginalInstructions(clock)).ToList();
-        Check(patchedClock.Count(instruction => instruction.LoadsConstant(3000)) == 2, "Clock and cleanup must end at 6 AM.");
+        Check(patchedClock.Count(instruction => instruction.Calls(AccessTools.Method(typeof(GamePatches), nameof(GamePatches.ClockLimit)))) == 2,
+            "Clock and cleanup must use the runtime on/off setting.");
         Check(!patchedClock.Any(instruction => instruction.LoadsConstant(2800)), "No forced 4 AM pass-out.");
         Check(!patchedClock.Any(instruction => instruction.Calls(AccessTools.Method(typeof(Farmer), nameof(Farmer.doEmote), new[] { typeof(int) }))),
             "Hourly updates must not emit fatigue bubbles.");
@@ -103,8 +108,9 @@ internal static class RuntimeChecks
             "Only the midnight bedtime warning must be suppressed.");
         FieldInfo shake = AccessTools.Field(typeof(DayTimeMoneyBox), nameof(DayTimeMoneyBox.timeShakeTimer));
         Check(patchedClock.Select((instruction, index) => (instruction, index))
-            .Where(entry => entry.instruction.StoresField(shake)).All(entry => patchedClock[entry.index - 1].LoadsConstant(0)),
-            "Late-hour clock updates must never start shaking the clock.");
+            .Where(entry => entry.instruction.StoresField(shake)).All(entry => patchedClock[entry.index - 1]
+                .Calls(AccessTools.Method(typeof(GamePatches), nameof(GamePatches.ClockShakeDuration)))),
+            "Late-hour clock shaking must follow the runtime on/off setting.");
         MethodInfo update = AccessTools.Method(typeof(Game1), nameof(Game1.UpdateOther));
         List<CodeInstruction> patchedUpdate = GamePatches.RemoveTimedPassOut(PatchProcessor.GetOriginalInstructions(update)).ToList();
         Check(!patchedUpdate.Any(instruction => instruction.LoadsConstant(2600)), "No 2 AM time check.");
@@ -128,7 +134,7 @@ internal static class RuntimeChecks
         {
             ModEntry.ApplyPatches(harmony);
             HashSet<MethodBase> patched = harmony.GetPatchedMethods().ToHashSet();
-            Check(patched.Count == 13, "All required patches must install.");
+            Check(patched.Count == 14, "All required patches must install.");
             Check(patched.Contains(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock))),
                 "The sunrise hook must remain installed for live checkbox changes.");
             Check(patched.Contains(clock) && patched.Contains(update) && patched.Contains(settlement),

@@ -36,7 +36,11 @@ Commit the verified `releases/ICGNS-<version>.zip` to `main`. In GitHub Actions,
 
 The workflow validates the ZIP against the tagged source files, attaches it, updates the release title and notes, and then removes any extra custom source ZIP from the release. GitHub's automatic source archives remain available. A different existing mod ZIP is never overwritten.
 
-## Current v1.2.0 package
+## Current v1.3.0 package
+
+`ICGNS-1.3.0.zip` adds the master switch, optional 6AM shipping with native fades/screens, and targeted late-night performance mitigations. It passed 508 checks against the actual Windows game and SMAPI libraries, including GPU rendering, and is validated before publication. The reported player's stutter still needs live confirmation; the exact cause was not identified from the report alone.
+
+## Existing v1.2.0 package
 
 `ICGNS-1.2.0.zip` contains the mine rollover fix, optional GMCM sunrise checkbox and localized saving text. It passed 350 checks against the actual Windows game and SMAPI installation, including GPU rendering and the installed GMCM API signatures. The package validator checks the assembly version and packaged documents before publication.
 
