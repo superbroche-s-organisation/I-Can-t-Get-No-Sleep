@@ -29,6 +29,7 @@ internal static class RuntimeChecks
         ConfigMenuChecks.Run(gamePath, Check);
         GameplayChecks.Run(Check);
         PathfindingChecks.Run(Check);
+        MusicChecks.Run(Check);
         ItemRetention();
         TeamInventoryPersistence();
         SunriseContinuity();
@@ -134,7 +135,7 @@ internal static class RuntimeChecks
         {
             ModEntry.ApplyPatches(harmony);
             HashSet<MethodBase> patched = harmony.GetPatchedMethods().ToHashSet();
-            Check(patched.Count == 14, "All required patches must install.");
+            Check(patched.Count == 15, "All required patches must install.");
             Check(patched.Contains(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock))),
                 "The sunrise hook must remain installed for live checkbox changes.");
             Check(patched.Contains(clock) && patched.Contains(update) && patched.Contains(settlement),

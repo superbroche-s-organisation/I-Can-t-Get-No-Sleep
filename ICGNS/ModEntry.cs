@@ -79,6 +79,8 @@ public sealed class ModEntry : Mod
         harmony.Patch(AccessTools.Method(typeof(Game1), "_draw"), prefix: Patch(nameof(GamePatches.DrawAwakeTransition)));
         harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.ShouldDrawOnBuffer)),
             postfix: Patch(nameof(GamePatches.KeepDawnOnBuffer)));
+        harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.playMorningSong)),
+            prefix: new HarmonyMethod(typeof(MorningMusic), nameof(MorningMusic.BeforePlayMorningSong)));
         harmony.Patch(AccessTools.Method(typeof(StardewValley.Pathfinding.PathFindController), "findPath"),
             prefix: new HarmonyMethod(typeof(LateNightPathfinding), nameof(LateNightPathfinding.BeforeFindPath)),
             postfix: new HarmonyMethod(typeof(LateNightPathfinding), nameof(LateNightPathfinding.AfterFindPath)));

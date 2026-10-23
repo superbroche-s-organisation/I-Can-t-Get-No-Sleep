@@ -2,6 +2,13 @@
 
 Changes are listed from newest to oldest. Earlier versions were private development builds.
 
+## Unreleased
+
+### Fixed
+
+- After an all-nighter, morning music respects the current location instead of starting the general outdoor theme in the Mines or silent interiors. Mine ambience, existing mine tracks, fog and silent-floor rules remain active; explicit map music, custom regional themes and normal wake-ups keep their native behavior.
+- Prevented a queued morning theme from replacing the location's music after the 6AM transition, with or without the shipping screen.
+
 ## 1.3.0 — 2026-10-20
 
 ### Added
