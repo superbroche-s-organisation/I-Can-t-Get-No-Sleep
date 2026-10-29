@@ -61,6 +61,25 @@ The native daily farm updates, exhaustion, combat, special overnight events, and
 
 Generated dungeon floors are kept during the current session. Quitting and reloading regenerates the floor, placing you at its entrance on the same level. Temporary event maps retain the game's normal fallback.
 
+## Progressive fatigue (unreleased)
+
+The source now includes a cost for consecutive all-nighters; the published 1.3.0 ZIP does not include it yet. The first awake dawn starts a twelve-game-hour grace period. Fatigue begins at 6PM that day, then rises every twelve hours until you sleep.
+
+| Time after the first awake dawn | Level | Maximum energy reduction | Speed reduction |
+| --- | --- | --- | --- |
+| 12 hours (6PM) | 1 | 10% | None |
+| 24 hours (next 6AM) | 2 | 20% | None |
+| 36 hours | 3 | 30% | 0.25 |
+| 48 hours | 4 | 40% | 0.50 |
+| 60 hours | 5 | 50% | 0.75 |
+| Each further 12 hours | +1 | Capped at 50% | Another 0.25, capped at 2 |
+
+The visible **Fatigue** effect shows your level. Bed sleep or a genuine overnight exhaustion pass-out resets it; the synthetic 6AM transition and dawn shipping do not. Food can refill energy up to the reduced maximum, but does not clear fatigue. Penalties use the normal maximum including other buffs, without permanently changing your base stats. Removing fatigue does not itself grant energy; sleeping uses the game's normal recovery.
+
+Progress is saved per player, including split-screen players. Reloading preserves the level and partial twelve-hour interval; disconnected players do not accumulate additional fatigue. Disabling the mod removes the effect and pauses the counter; finishing a night with the mod disabled clears it. Existing saves start tracking from their first all-nighter with this feature installed.
+
+The fatigue rules have standalone tests. Compiling the full mod and verifying the native effects, saves and multiplayer behavior still require the installed game; no new installable release has been built for this feature.
+
 ## Multiplayer
 
 Install the same version on the host and every player's computer, including split-screen players. The host controls the mod switch and dawn shipping. With default settings and shared money, shipping requires all online players to sleep or pass out; separate wallets follow each player's sleep status. Enabling dawn shipping sells online players' bins at 6AM even if they stayed awake; disconnected players' personal bins remain retained. A complete live multiplayer session still needs verification.
@@ -82,6 +101,8 @@ From the repository root in PowerShell:
 ```
 
 The script writes the mod ZIP to `artifacts/`. Use `-RunGraphicsTests` to also run rendering checks on the GPU in a hidden window. Tests use the installed game's DLLs and do not load a player save. The preview migration checks additionally use a local private-build archive when available; that archive is not distributed.
+
+Without the game installed, test the fatigue clock and balance rules with `dotnet run --project tests/fatigue-logic/ICGNS.Fatigue.Tests.csproj --configuration Release`. This compiles the actual fatigue progress model; it does not validate the game API integration or replace `Build.ps1 -RunTests` before a release.
 
 Every new public release must include an installable `ICGNS-<version>.zip`, followed by GitHub's automatic source archives. The [release procedure](releases/README.md) validates the compiled package and blocks publication when it is missing.
 

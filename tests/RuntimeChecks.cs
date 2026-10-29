@@ -22,6 +22,7 @@ internal static class RuntimeChecks
     internal static void Run(string gamePath, bool graphics)
     {
         ConfigurationDefaults();
+        FatigueChecks.Run(Check);
         ShippingRules();
         PassOutShipping();
         ActualGamePatches();

@@ -172,6 +172,7 @@ internal static class GamePatches
     internal static int PrepareSettlement(int time)
     {
         MorningState state = ModEntry.Instance.State.Value;
+        Fatigue.FinishNight(Game1.player, state.DawnStarted);
         state.SettlementPrepared = GameplaySettings.Enabled;
         state.SeparateWallets = Game1.player.team.useSeparateWallets.Value;
         state.Sleeping.Clear();
