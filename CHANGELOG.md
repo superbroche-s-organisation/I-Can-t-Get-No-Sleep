@@ -4,6 +4,12 @@ Changes are listed from newest to oldest. Earlier versions were private developm
 
 ## Unreleased
 
+### Added
+
+- Progressive fatigue starts twelve game hours after the first all-nighter (6PM). Each further twelve hours lowers maximum energy by another 10%, capped at 50%. Movement slows gently from level 3, by 0.25 speed per level, capped at 2.
+- Each player's fatigue is saved separately, survives awake dawns and reloads, and pauses while disconnected. Real overnight sleep or exhaustion resets it; optional dawn shipping does not count as sleep. Added a visible English/French fatigue effect and level notifications.
+- Added a game-independent fatigue test runner alongside the full runtime checks. Full compilation and live gameplay verification of this unreleased feature still require an installed copy of Stardew Valley and SMAPI.
+
 ### Fixed
 
 - After an all-nighter, morning music respects the current location instead of starting the general outdoor theme in the Mines or silent interiors. Mine ambience, existing mine tracks, fog and silent-floor rules remain active; explicit map music, custom regional themes and normal wake-ups keep their native behavior.

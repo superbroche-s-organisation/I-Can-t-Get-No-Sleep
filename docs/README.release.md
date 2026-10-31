@@ -56,6 +56,17 @@ The JSON shows the defaults. Restart after editing it manually. Set `EnableSunri
 - Shows a short morning message: "6AM, a new day begins!"
 - Includes English and French messages.
 
+## Progressive fatigue
+
+After your first all-nighter ends at 6AM, you have twelve game hours before fatigue starts at 6PM. Every twelve additional hours adds another level:
+
+- Levels 1 and 2: maximum energy is reduced by 10% and 20%, with normal movement speed.
+- Level 3: 30% less maximum energy and only 0.25 less speed.
+- Level 4: 40% less maximum energy and 0.50 less speed.
+- Level 5 onward: maximum energy reduction is capped at 50%; speed continues to decrease gently by 0.25 per level, up to a maximum reduction of 2.
+
+The Fatigue effect displays your current level. Sleeping in a bed or passing out from genuine overnight exhaustion resets it. Dawn shipping and awake saves do not. Food does not cure fatigue, but can replenish energy within the reduced maximum. Each player's progress is saved separately and pauses while disconnected. Disabling the mod removes the effect and pauses the counter; completing a night with the mod disabled clears it.
+
 ## Requirements
 
 - Stardew Valley **1.6.15, build 24356**.

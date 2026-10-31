@@ -14,6 +14,7 @@ public sealed class ModEntry : Mod
 {
     internal static ModEntry Instance { get; private set; } = null!;
     internal PerScreen<MorningState> State { get; } = new(() => new MorningState());
+    private PerScreen<Fatigue> Fatigue { get; } = new(() => new Fatigue());
     internal ModConfig Config { get; private set; } = new();
 
     public override void Entry(IModHelper helper)
@@ -38,6 +39,7 @@ public sealed class ModEntry : Mod
         helper.Events.GameLoop.Saved += OnSaved;
         helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
         helper.Events.GameLoop.DayStarted += OnDayStarted;
+        helper.Events.GameLoop.TimeChanged += (_, _) => Fatigue.Value.Refresh();
         helper.Events.GameLoop.GameLaunched += (_, _) =>
         {
             IntegrateTimeDisplay(harmony);
@@ -51,6 +53,7 @@ public sealed class ModEntry : Mod
             foreach (var screen in State.GetActiveValues())
                 screen.Value.Presentation.Dispose();
             State.ResetAllScreens();
+            Fatigue.ResetAllScreens();
             LateNightPathfinding.Reset();
         };
         helper.Events.Multiplayer.PeerConnected += (_, _) => Monitor.Log(helper.Translation.Get("multiplayer"), LogLevel.Info);
@@ -88,6 +91,9 @@ public sealed class ModEntry : Mod
 
     private void OnUpdateTicked(object? sender, UpdateTickedEventArgs e)
     {
+        // Also react to config and food/Stardrop changes while the clock is paused.
+        if (e.IsMultipleOf(60))
+            Fatigue.Value.Refresh();
         // DayStarted can occur when the save menu closes, before the native morning fade finishes.
         // Keep the scene visible until the fade callback has completed to avoid a final black flash.
         if (State.Value.DayHasStarted && State.Value.CanFinishPresentation(Game1.globalFade, Game1.fadeToBlackAlpha, Game1.newDay))
@@ -174,6 +180,7 @@ public sealed class ModEntry : Mod
             ShippingStorage.RestoreAfterSaveOrLoad();
         if (GameplaySettings.Enabled)
             MorningState.ApplyPosition(Game1.player, loadingSave: true);
+        Fatigue.Value.OnLoaded();
         if (Context.IsMultiplayer)
             Monitor.Log(Helper.Translation.Get("multiplayer"), LogLevel.Info);
     }
@@ -181,6 +188,7 @@ public sealed class ModEntry : Mod
     private void OnDayStarted(object? sender, DayStartedEventArgs e)
     {
         GameplaySettings.Publish(Config);
+        Fatigue.Value.Refresh();
         LateNightPathfinding.Reset();
         Game1.player.modData.Remove(SalePolicy.PassOutDayKey);
         if (Context.IsMainPlayer)

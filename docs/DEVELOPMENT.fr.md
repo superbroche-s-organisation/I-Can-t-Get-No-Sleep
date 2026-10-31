@@ -86,6 +86,26 @@ La protection ajoutée en 1.3.0 limite à une tentative par seconde les recherch
 
 Le rendu supplémentaire nécessaire à la sauvegarde discrète est limité au dernier intervalle avant 6 h et n'est pas demandé avec la vente native. Le test synthétique utilise le véritable pathfinder du jeu pour vérifier qu'une série de demandes bloquées ne relance pas la recherche complète à chaque fois. Sans journal, lieu ou liste de mods du joueur concerné, la cause exacte des saccades signalées reste non confirmée ; ce sont des mesures ciblées à faire retester dans sa partie.
 
+## Fatigue progressive — en développement
+
+Le premier passage à 6 h sans sommeil démarre un délai de 12 heures de jeu. Le palier 1 arrive donc à 18 h : −10 % d'énergie maximale. Un palier s'ajoute toutes les 12 h, jusqu'à −50 % d'énergie maximale au palier 5. La vitesse reste normale aux paliers 1 et 2, puis baisse par petites étapes de 0,25 à partir du palier 3, avec un plafond de −2. Le numéro du palier continue d'augmenter après ces plafonds.
+
+`FatigueProgress` contient les règles indépendantes du jeu. Le compteur en minutes et son dernier instant observé sont stockés dans `Farmer.modData["Tom.ICGNS/Fatigue"]`. `PrepareSettlement` enregistre la nuit avant le changement de date et la sauvegarde. Il utilise le véritable statut de sommeil de `SalePolicy.HasSlept`, indépendamment du bac de vente et du faux évanouissement à 6 h. Un vrai sommeil ou évanouissement nocturne efface le compteur et retire l'effet avant la récupération native.
+
+`TimeChanged` fait avancer le compteur ; un rafraîchissement par seconde vérifie aussi les changements d'options et de bonus d'énergie. L'instant du jour N à 30 h est identique à celui du jour N+1 à 6 h. Le chargement recale l'horloge sans facturer le temps passé déconnecté. Les transitions de journée suspendent le rafraîchissement pour éviter d'observer une date et une heure partiellement mises à jour. Les données et l'affichage sont propres à chaque joueur/écran.
+
+L'effet natif `Tom.ICGNS/Fatigue` utilise une durée infinie et est réappliqué après une nuit blanche. Le calcul restitue d'abord son propre malus pour ne jamais le multiplier lors des rafraîchissements. La capacité normale inclut les autres bonus ; aucune statistique de base n'est modifiée. Une baisse du plafond limite l'énergie actuelle sans remonter une énergie négative. Les messages et le nom de l'effet sont traduits en français et en anglais.
+
+Vérification possible sans jeu installé :
+
+```powershell
+dotnet run --project tests/fatigue-logic/ICGNS.Fatigue.Tests.csproj --configuration Release
+```
+
+Ces mêmes vérifications sont incluses dans le lanceur de tests complet. Elles couvrent les seuils, les pauses, les sauts d'horloge, minuit et 6 h, les plafonds, le sommeil, la sérialisation, les données invalides et la reprise après déconnexion. Elles ne valident pas l'API native ni le rendu en jeu.
+
+À vérifier avec le jeu avant publication : compiler et exécuter `Build.ps1 -RunTests`, puis tester les deux modes de vente à l'aube, le sommeil après fatigue, un évanouissement réel, la sauvegarde/reprise, les bonus d'énergie et de vitesse, ainsi que deux joueurs aux habitudes de sommeil différentes (dont écran partagé). Vérifier la finesse réelle du ralentissement, l'icône et l'infobulle. Le PC utilisé pour cette modification ne contient pas le jeu : aucune nouvelle DLL ni release installable n'a été produite.
+
 ## Compilation et vérifications
 
 Un SDK .NET capable de cibler .NET 6 est nécessaire pour compiler. Les joueurs ont seulement besoin du ZIP et de SMAPI. Le script utilise le SDK local `.tools/dotnet` s'il existe, sinon `dotnet` installé sur l'ordinateur.

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../ICGNS/FatigueProgress.cs" Link="FatigueProgress.cs" />
+    <Compile Include="../FatigueChecks.cs" Link="FatigueChecks.cs" />
+  </ItemGroup>
+</Project>
