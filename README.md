@@ -29,6 +29,7 @@ With **Generic Mod Config Menu** installed, open its mod options and select **I 
 | Enable mod | On | Turn off to restore normal 2AM pass-out, clock warnings and shipping. An ongoing save finishes first. |
 | Enable sunrise | On | Gradually brighten outdoors from 4AM to 6AM. Turn off to use another lighting mod. |
 | Sell shipping bin at 6AM | Off | Sell even when staying awake: normal fade, shipping summary/save, then fade back to your position. Empty bins use the normal save screen. |
+| Show fatigue bar (unreleased) | On | Purple gauge beside health/energy, hidden until fatigue level 1. Display only; fatigue penalties stay active when hidden. |
 
 Changes apply without restarting; select **Save** to keep them. GMCM is optional. In multiplayer, the host controls **Enable mod** and **Sell shipping bin at 6AM**; sunrise is personal. Farmhand gameplay preferences apply in their own saves.
 
@@ -38,7 +39,8 @@ To let **Dynamic Dawn/Dusk**, **Golden Hours**, or another lighting mod control 
 {
   "EnableMod": true,
   "EnableSunrise": true,
-  "SellAt6AM": false
+  "SellAt6AM": false,
+  "ShowFatigueBar": true
 }
 ```
 
@@ -74,11 +76,13 @@ The source now includes a cost for consecutive all-nighters; the published 1.3.0
 | 60 hours | 5 | 50% | 0.75 |
 | Each further 12 hours | +1 | Capped at 50% | Another 0.25, capped at 2 |
 
-The visible **Fatigue** effect shows your level. Bed sleep or a genuine overnight exhaustion pass-out resets it; the synthetic 6AM transition and dawn shipping do not. Food can refill energy up to the reduced maximum, but does not clear fatigue. Penalties use the normal maximum including other buffs, without permanently changing your base stats. Removing fatigue does not itself grant energy; sleeping uses the game's normal recovery.
+The visible **Fatigue** effect shows your level. An optional purple **F** gauge appears beside the native health/energy bars only from level 1, fills between thresholds and reaches full at level 10, when both penalties are capped. Hover to see the actual level and penalties, including levels above 10. **Show fatigue bar** is on by default in GMCM (`ShowFatigueBar: true`); each player can hide it without disabling penalties. The gauge also disappears after real sleep or when the mod is disabled.
+
+Bed sleep or a genuine overnight exhaustion pass-out resets fatigue; the synthetic 6AM transition and dawn shipping do not. Food can refill energy up to the reduced maximum, but does not clear fatigue. Penalties use the normal maximum including other buffs, without permanently changing your base stats. Removing fatigue does not itself grant energy; sleeping uses the game's normal recovery.
 
 Progress is saved per player, including split-screen players. Reloading preserves the level and partial twelve-hour interval; disconnected players do not accumulate additional fatigue. Disabling the mod removes the effect and pauses the counter; finishing a night with the mod disabled clears it. Existing saves start tracking from their first all-nighter with this feature installed.
 
-The fatigue rules have standalone tests. Compiling the full mod and verifying the native effects, saves and multiplayer behavior still require the installed game; no new installable release has been built for this feature.
+The fatigue rules have standalone tests. The source has also been compiled and checked against the installed Windows game, including GPU gauge rendering with native textures. Full live gameplay, saves and multiplayer behavior still need verification; no new public release includes fatigue yet.
 
 ## Multiplayer
 

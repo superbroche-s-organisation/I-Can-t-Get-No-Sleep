@@ -9,6 +9,7 @@ internal sealed class Fatigue
     internal const string ProgressKey = SaveDataMigration.CurrentId + "/Fatigue";
     internal const string BuffId = SaveDataMigration.CurrentId + "/Fatigue";
     private int? displayedLevel;
+    internal FatigueProgress? Progress { get; private set; }
 
     internal static FatigueProgress? Read(Farmer farmer)
         => FatigueProgress.Parse(farmer.modData.TryGetValue(ProgressKey, out string? value) ? value : null);
@@ -57,6 +58,7 @@ internal sealed class Fatigue
         FatigueProgress? progress = Read(farmer);
         progress = enabled ? progress?.Advance(now) : progress?.Rebase(now);
         Write(farmer, progress);
+        Progress = progress;
         int level = enabled ? progress?.Level ?? 0 : 0;
         if (level == 0 || progress is not { } clock)
         {

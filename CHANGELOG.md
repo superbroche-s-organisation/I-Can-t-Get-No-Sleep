@@ -6,9 +6,10 @@ Changes are listed from newest to oldest. Earlier versions were private developm
 
 ### Added
 
+- Added an optional purple fatigue gauge beside the native health/energy bars. It first appears at fatigue level 1, fills progressively up to the penalty caps at level 10, and shows the actual level and penalties on hover. `ShowFatigueBar` defaults to `true` and is a personal GMCM/JSON display setting; hiding it does not disable fatigue.
 - Progressive fatigue starts twelve game hours after the first all-nighter (6PM). Each further twelve hours lowers maximum energy by another 10%, capped at 50%. Movement slows gently from level 3, by 0.25 speed per level, capped at 2.
 - Each player's fatigue is saved separately, survives awake dawns and reloads, and pauses while disconnected. Real overnight sleep or exhaustion resets it; optional dawn shipping does not count as sleep. Added a visible English/French fatigue effect and level notifications.
-- Added a game-independent fatigue test runner alongside the full runtime checks. Full compilation and live gameplay verification of this unreleased feature still require an installed copy of Stardew Valley and SMAPI.
+- Added a game-independent fatigue test runner alongside full runtime checks, gauge layout checks and GPU rendering checks using the native HUD textures. This unreleased source has now been compiled and checked against the installed Windows game/SMAPI libraries; a full live gameplay and multiplayer session remains to be verified.
 
 ### Fixed
 

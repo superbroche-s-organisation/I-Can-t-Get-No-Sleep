@@ -26,6 +26,7 @@ If **Generic Mod Config Menu** is installed, open its mod options and select **I
 | Enable mod | On | The first option. Uncheck to restore normal 2AM pass-out, clock warnings and shipping. An ongoing day/save transition finishes first. |
 | Enable sunrise | On | Brightens outdoor lighting from 4AM to 6AM. Uncheck when another mod handles dawn. |
 | Sell shipping bin at 6AM | Off | Sells even when staying awake, using the normal fade, sales summary and save, then fades back to your position. Empty bins use the normal save screen. |
+| Show fatigue bar | On | Shows a purple fatigue gauge beside health/energy from level 1. Hiding it does not remove fatigue penalties. Personal display setting. |
 
 Changes apply without restarting. In multiplayer, the host controls the mod switch and dawn shipping; each player chooses sunrise independently. Farmhand gameplay preferences apply in their own saves.
 
@@ -35,7 +36,8 @@ To let **Dynamic Dawn/Dusk**, **Golden Hours**, or another lighting mod handle s
 {
   "EnableMod": true,
   "EnableSunrise": true,
-  "SellAt6AM": false
+  "SellAt6AM": false,
+  "ShowFatigueBar": true
 }
 ```
 
@@ -66,6 +68,8 @@ After your first all-nighter ends at 6AM, you have twelve game hours before fati
 - Level 5 onward: maximum energy reduction is capped at 50%; speed continues to decrease gently by 0.25 per level, up to a maximum reduction of 2.
 
 The Fatigue effect displays your current level. Sleeping in a bed or passing out from genuine overnight exhaustion resets it. Dawn shipping and awake saves do not. Food does not cure fatigue, but can replenish energy within the reduced maximum. Each player's progress is saved separately and pauses while disconnected. Disabling the mod removes the effect and pauses the counter; completing a night with the mod disabled clears it.
+
+A purple **F** gauge appears next to the health and energy bars only after reaching fatigue level 1. It gradually fills up to level 10, when both penalties reach their caps. Hover over it to see the actual level and penalties; the true level can continue above 10. The personal **Show fatigue bar** option is enabled by default and can be changed in GMCM or with `ShowFatigueBar` in JSON. Hiding the gauge only changes its display. Real sleep or disabling the mod hides it again.
 
 ## Requirements
 

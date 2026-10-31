@@ -3,6 +3,8 @@
   "fatigue.name": "Fatigue — palier {{level}}",
   "fatigue.description": "Énergie maximale : -{{energyPercent}} %. Vitesse : -{{speed}}. La fatigue augmente toutes les 12 h sans sommeil. Dormez pour récupérer.",
   "fatigue.increased": "Le manque de sommeil se fait sentir : fatigue au palier {{level}}.",
+  "config.fatigue-bar.name": "Afficher la barre de fatigue",
+  "config.fatigue-bar.tooltip": "Affiche une jauge violette près de la vie et de l'énergie dès le palier 1. Elle se remplit avec la fatigue, jusqu'au palier 10. La masquer ne désactive pas les malus. Réglage d'affichage personnel.",
   "config.enabled.name": "Activer le mod",
   "config.enabled.tooltip": "Décochez pour rétablir l'évanouissement à 2 h, les avertissements de l'horloge et la vente habituelle. Une transition déjà commencée se termine d'abord. En multijoueur, ce réglage est contrôlé par l'hôte.",
   "config.sunrise.name": "Activer le lever du soleil",

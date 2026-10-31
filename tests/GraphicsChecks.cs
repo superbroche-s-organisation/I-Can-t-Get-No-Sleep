@@ -99,6 +99,7 @@ internal static class GraphicsChecks
                 check(savedScene.R == previous.R && savedScene.G == previous.G && savedScene.B == previous.B,
                     "The dawn save display must retain the rendered world's visible RGB regardless of its alpha.");
             }
+            FatigueHudGraphicsChecks.Run(game, gamePath, batch, pixel, check);
         }
         finally
         {

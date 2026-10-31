@@ -14,7 +14,7 @@ public sealed class ModEntry : Mod
 {
     internal static ModEntry Instance { get; private set; } = null!;
     internal PerScreen<MorningState> State { get; } = new(() => new MorningState());
-    private PerScreen<Fatigue> Fatigue { get; } = new(() => new Fatigue());
+    internal PerScreen<Fatigue> Fatigue { get; } = new(() => new Fatigue());
     internal ModConfig Config { get; private set; } = new();
 
     public override void Entry(IModHelper helper)
@@ -84,6 +84,8 @@ public sealed class ModEntry : Mod
             postfix: Patch(nameof(GamePatches.KeepDawnOnBuffer)));
         harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.playMorningSong)),
             prefix: new HarmonyMethod(typeof(MorningMusic), nameof(MorningMusic.BeforePlayMorningSong)));
+        harmony.Patch(AccessTools.Method(typeof(Game1), "drawHUD"),
+            postfix: new HarmonyMethod(typeof(FatigueBar), nameof(FatigueBar.AfterDrawHud)));
         harmony.Patch(AccessTools.Method(typeof(StardewValley.Pathfinding.PathFindController), "findPath"),
             prefix: new HarmonyMethod(typeof(LateNightPathfinding), nameof(LateNightPathfinding.BeforeFindPath)),
             postfix: new HarmonyMethod(typeof(LateNightPathfinding), nameof(LateNightPathfinding.AfterFindPath)));
@@ -188,7 +190,6 @@ public sealed class ModEntry : Mod
     private void OnDayStarted(object? sender, DayStartedEventArgs e)
     {
         GameplaySettings.Publish(Config);
-        Fatigue.Value.Refresh();
         LateNightPathfinding.Reset();
         Game1.player.modData.Remove(SalePolicy.PassOutDayKey);
         if (Context.IsMainPlayer)
@@ -203,6 +204,9 @@ public sealed class ModEntry : Mod
             State.Value.Presentation.Dispose();
             State.Value = new MorningState();
         }
+        // The awake-transition guard can now refresh both the buff and its HUD
+        // snapshot before the first playable frame of the new day.
+        Fatigue.Value.Refresh();
     }
 
     private void IntegrateTimeDisplay(Harmony harmony)

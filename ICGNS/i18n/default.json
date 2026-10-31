@@ -3,6 +3,8 @@
   "fatigue.name": "Fatigue — level {{level}}",
   "fatigue.description": "Maximum energy: -{{energyPercent}}%. Speed: -{{speed}}. Fatigue rises every 12 hours without sleep. Sleep to recover.",
   "fatigue.increased": "Lack of sleep is catching up with you: fatigue level {{level}}.",
+  "config.fatigue-bar.name": "Show fatigue bar",
+  "config.fatigue-bar.tooltip": "Show a purple gauge beside health and energy from fatigue level 1 onward. It fills as fatigue increases, reaching full at level 10. Hiding it does not disable fatigue penalties. Personal display setting.",
   "config.enabled.name": "Enable mod",
   "config.enabled.tooltip": "Uncheck to restore normal 2AM pass-out, clock warnings and shipping. An ongoing day transition finishes first. In multiplayer, the host controls this setting.",
   "config.sunrise.name": "Enable sunrise",

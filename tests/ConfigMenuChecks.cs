@@ -18,18 +18,21 @@ internal static class ConfigMenuChecks
         FakeApi api = new();
         ConfigMenuIntegration.Register(api, null!, () => config, () => config = new(), () => saved = true,
             key => "translated " + key, () => changed++);
-        check(!api.TitleScreenOnly && api.Options.Select(option => option.Id).SequenceEqual(new[] { "EnableMod", "EnableSunrise", "SellAt6AM" }),
-            "The master toggle must be first, followed by sunrise and dawn shipping, available in game.");
+        check(!api.TitleScreenOnly && api.Options.Select(option => option.Id).SequenceEqual(new[] { "EnableMod", "EnableSunrise", "SellAt6AM", "ShowFatigueBar" }),
+            "The master toggle must remain first; the personal fatigue display option must also be available in game.");
         var enabled = api.Options[0];
         var sunrise = api.Options[1];
         var shipping = api.Options[2];
-        check(enabled.Get() && sunrise.Get() && !shipping.Get(), "The menu must default to mod on, sunrise on, shipping off.");
+        var fatigueBar = api.Options[3];
+        check(enabled.Get() && sunrise.Get() && !shipping.Get() && fatigueBar.Get(), "The menu must default to mod/sunrise/fatigue bar on and shipping off.");
         foreach (var option in api.Options)
             check(option.Name().StartsWith("translated config.") && option.Tooltip().StartsWith("translated config."),
                 "Every checkbox must use translated names and tooltips.");
         enabled.Set(false);
         shipping.Set(true);
         check(!config.EnableMod && config.SellAt6AM && changed == 2, "Gameplay changes must update config and publish host settings.");
+        fatigueBar.Set(false);
+        check(!config.ShowFatigueBar && changed == 2, "The fatigue bar must be a personal display option, without publishing host gameplay settings.");
         enabled.Set(true);
         sunrise.Set(false);
         check(!config.EnableSunrise && !sunrise.Get(), "Unchecking sunrise must change the active config immediately.");
@@ -50,10 +53,11 @@ internal static class ConfigMenuChecks
         api.Save!();
         check(saved, "GMCM Save must invoke configuration persistence.");
         api.Reset!();
-        check(config.EnableMod && sunrise.Get() && !shipping.Get(), "Reset must restore defaults through the replacement config instance.");
+        check(config.EnableMod && sunrise.Get() && !shipping.Get() && fatigueBar.Get(), "Reset must restore defaults through the replacement config instance.");
         sunrise.Set(false);
         shipping.Set(true);
-        check(!config.EnableSunrise && config.SellAt6AM, "All callbacks must still edit the live config after Reset.");
+        fatigueBar.Set(false);
+        check(!config.EnableSunrise && config.SellAt6AM && !config.ShowFatigueBar, "All callbacks must still edit the live config after Reset.");
 
         string path = Path.Combine(gamePath, "Mods", "GenericModConfigMenu", "GenericModConfigMenu.dll");
         if (!File.Exists(path))

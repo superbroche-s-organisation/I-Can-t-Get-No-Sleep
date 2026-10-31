@@ -44,13 +44,14 @@ Aucun réglage n'est nécessaire. Le projet produit le ZIP dans son propre dossi
 
 ### Configuration
 
-Avec **Generic Mod Config Menu**, ouvrez les options des mods et sélectionnez **I Can't Get No Sleep**. Trois cases apparaissent dans cet ordre :
+Avec **Generic Mod Config Menu**, ouvrez les options des mods et sélectionnez **I Can't Get No Sleep**. Les cases apparaissent dans cet ordre :
 
 | Option | Défaut | Effet |
 | --- | --- | --- |
 | Activer le mod | Activé | En tête de page. Décocher rétablit l'évanouissement à 2 h, les avertissements de l'horloge et la vente normale. Une sauvegarde déjà commencée se termine d'abord. |
 | Activer le lever du soleil | Activé | Éclairage progressif entre 4 h et 6 h. |
 | Vendre le bac d'expédition à 6 h | Désactivé | Vente, bilan et fondus natifs à 6 h, puis retour à la position conservée. |
+| Afficher la barre de fatigue | Activé | Jauge violette près de la vie et de l'énergie, visible dès le palier 1. Réglage personnel d'affichage uniquement. |
 
 Les changements s'appliquent sans redémarrer ; utilisez **Sauvegarder** pour les conserver. GMCM reste facultatif. En multijoueur, l'hôte décide de l'activation du mod et de la vente à 6 h ; le lever du soleil reste propre à chaque joueur. Les préférences de gameplay d'un invité s'appliquent à ses propres parties.
 
@@ -60,7 +61,8 @@ Sans GMCM, lancez une fois le jeu avec ICGNS puis fermez-le. Les réglages par d
 {
   "EnableMod": true,
   "EnableSunrise": true,
-  "SellAt6AM": false
+  "SellAt6AM": false,
+  "ShowFatigueBar": true
 }
 ```
 
@@ -96,6 +98,10 @@ Le premier passage à 6 h sans sommeil démarre un délai de 12 heures de jeu. L
 
 L'effet natif `Tom.ICGNS/Fatigue` utilise une durée infinie et est réappliqué après une nuit blanche. Le calcul restitue d'abord son propre malus pour ne jamais le multiplier lors des rafraîchissements. La capacité normale inclut les autres bonus ; aucune statistique de base n'est modifiée. Une baisse du plafond limite l'énergie actuelle sans remonter une énergie négative. Les messages et le nom de l'effet sont traduits en français et en anglais.
 
+`FatigueBar` dessine une jauge violette **F** avec les cadres natifs, à gauche de la vie lorsqu'elle est visible, sinon à gauche de l'énergie. Le postfix de `Game1.drawHUD` utilise le batch et les coordonnées d'interface natifs ; il respecte les événements, les transitions, les captures de carte et le masquage du HUD. L'état affiché est mis en cache par `Fatigue.Refresh`, propre à chaque écran : aucun décodage des données de sauvegarde n'est ajouté à chaque image.
+
+La jauge reste cachée pendant le délai de grâce et apparaît à partir du palier 1. Son remplissage suit les minutes accumulées, avec un maximum au palier 10 ; le survol donne le vrai palier et les malus, même au-delà de 10. `ShowFatigueBar` vaut `true` par défaut et possède sa propre case GMCM, sans synchronisation avec les réglages de gameplay de l'hôte. Masquer la jauge ne supprime ni l'effet ni les malus. Le rafraîchissement de début de journée intervient après le marquage de la transition comme prête afin de rétablir l'effet et son affichage avant la reprise.
+
 Vérification possible sans jeu installé :
 
 ```powershell
@@ -104,7 +110,7 @@ dotnet run --project tests/fatigue-logic/ICGNS.Fatigue.Tests.csproj --configurat
 
 Ces mêmes vérifications sont incluses dans le lanceur de tests complet. Elles couvrent les seuils, les pauses, les sauts d'horloge, minuit et 6 h, les plafonds, le sommeil, la sérialisation, les données invalides et la reprise après déconnexion. Elles ne valident pas l'API native ni le rendu en jeu.
 
-À vérifier avec le jeu avant publication : compiler et exécuter `Build.ps1 -RunTests`, puis tester les deux modes de vente à l'aube, le sommeil après fatigue, un évanouissement réel, la sauvegarde/reprise, les bonus d'énergie et de vitesse, ainsi que deux joueurs aux habitudes de sommeil différentes (dont écran partagé). Vérifier la finesse réelle du ralentissement, l'icône et l'infobulle. Le PC utilisé pour cette modification ne contient pas le jeu : aucune nouvelle DLL ni release installable n'a été produite.
+La branche a désormais été compilée avec les DLL de ce PC Windows. Les tests comprennent les règles de fatigue, les seuils/limites de la jauge, les positions dans les petits écrans et écrans partagés, la configuration et le rendu GPU avec les textures natives. Une partie réelle reste à faire avant publication : tester les deux modes de vente à l'aube, le sommeil après fatigue, un évanouissement réel, la sauvegarde/reprise, les bonus d'énergie et de vitesse, ainsi que deux joueurs aux habitudes de sommeil différentes (dont écran partagé). Vérifier la finesse réelle du ralentissement, l'icône, la jauge et son infobulle. Aucune nouvelle release publique n'a été produite.
 
 ## Compilation et vérifications
 

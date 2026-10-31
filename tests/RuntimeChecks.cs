@@ -23,6 +23,7 @@ internal static class RuntimeChecks
     {
         ConfigurationDefaults();
         FatigueChecks.Run(Check);
+        FatigueBarChecks.Run(Check);
         ShippingRules();
         PassOutShipping();
         ActualGamePatches();
@@ -49,6 +50,8 @@ internal static class RuntimeChecks
             "The config must allow other lighting mods to take over sunrise.");
         ModConfig defaults = JsonSerializer.Deserialize<ModConfig>("{}")!;
         Check(defaults.EnableMod && !defaults.SellAt6AM, "The mod must default on and dawn shipping off for existing configs.");
+        Check(defaults.ShowFatigueBar && !JsonSerializer.Deserialize<ModConfig>("{\"ShowFatigueBar\":false}")!.ShowFatigueBar,
+            "Existing configs must show the fatigue bar by default and allow persisting an explicit off setting.");
     }
 
     private static void ShippingRules()
@@ -136,7 +139,8 @@ internal static class RuntimeChecks
         {
             ModEntry.ApplyPatches(harmony);
             HashSet<MethodBase> patched = harmony.GetPatchedMethods().ToHashSet();
-            Check(patched.Count == 15, "All required patches must install.");
+            Check(patched.Count == 16 && patched.Contains(AccessTools.Method(typeof(Game1), "drawHUD")),
+                "All required patches, including the fatigue gauge in the native HUD, must install.");
             Check(patched.Contains(AccessTools.Method(typeof(Game1), nameof(Game1.UpdateGameClock))),
                 "The sunrise hook must remain installed for live checkbox changes.");
             Check(patched.Contains(clock) && patched.Contains(update) && patched.Contains(settlement),

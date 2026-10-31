@@ -16,5 +16,7 @@ internal static class ConfigMenuIntegration
             () => translate("config.sunrise.name"), () => translate("config.sunrise.tooltip"), nameof(ModConfig.EnableSunrise));
         api.AddBoolOption(manifest, () => config().SellAt6AM, value => { config().SellAt6AM = value; changed?.Invoke(); },
             () => translate("config.shipping.name"), () => translate("config.shipping.tooltip"), nameof(ModConfig.SellAt6AM));
+        api.AddBoolOption(manifest, () => config().ShowFatigueBar, value => config().ShowFatigueBar = value,
+            () => translate("config.fatigue-bar.name"), () => translate("config.fatigue-bar.tooltip"), nameof(ModConfig.ShowFatigueBar));
     }
 }
